@@ -68,8 +68,6 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
 .msg.edited .text::after { content: ' (düzenlendi)'; font-size: 10px; color: #888; font-style: italic; }
 .chat-input { display: flex; gap: 6px; align-items: center; }
 .chat-input input { flex: 1; }
-.chat-input .btn-emoji { background: none; border: 1px solid #333; border-radius: 8px; cursor: pointer; font-size: 20px; padding: 8px 10px; line-height: 1; transition: all 0.2s; }
-.chat-input .btn-emoji:hover { border-color: #e94560; }
 .chat-input .btn-send { padding: 12px 18px; white-space: nowrap; }
 .leave-btn { background: transparent; border: 1px solid #444; color: #aaa; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
 .leave-btn:hover { border-color: #e94560; color: #e94560; }
@@ -77,11 +75,6 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
 .clear-btn:hover { background: rgba(233,69,96,0.15); }
 .hidden { display: none; }
 .loading { text-align: center; color: #666; font-size: 13px; margin-top: 12px; }
-
-.emoji-picker { position: absolute; bottom: 60px; left: 20px; background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 10px; display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; z-index: 10; max-width: 280px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
-.emoji-picker span { text-align: center; padding: 4px; cursor: pointer; font-size: 22px; border-radius: 6px; transition: background 0.2s; }
-.emoji-picker span:hover { background: #333; }
-.emoji-wrap { position: relative; }
 
 @media (max-width: 540px) {
   .chat-sidebar { display: none; }
@@ -142,13 +135,9 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
     <div class="chat-layout">
       <div class="chat-main">
         <div class="chat-messages" id="chat-messages"></div>
-        <div class="emoji-wrap">
-          <div class="chat-input">
-            <button class="btn-emoji" id="btn-emoji" onclick="toggleEmoji()">😊</button>
-            <input type="text" id="chat-input" placeholder="Mesajınızı yazın..." maxlength="500" onkeydown="if(event.key==='Enter') sendMessage()" oninput="onTyping()" onblur="stopTyping()">
-            <button class="btn btn-primary btn-send" onclick="sendMessage()">Gönder</button>
-          </div>
-          <div class="emoji-picker hidden" id="emoji-picker"></div>
+        <div class="chat-input">
+          <input type="text" id="chat-input" placeholder="Mesajınızı yazın..." maxlength="500" onkeydown="if(event.key==='Enter') sendMessage()" oninput="onTyping()" onblur="stopTyping()">
+          <button class="btn btn-primary btn-send" onclick="sendMessage()">Gönder</button>
         </div>
       </div>
       <div class="chat-sidebar" id="chat-sidebar">
@@ -177,8 +166,6 @@ const db = firebase.database();
 
 const PUBLIC_CODE = '0000';
 const COLORS = ['#e94560','#2ecc71','#f39c12','#3498db','#9b59b6','#1abc9c','#e67e22','#e91e63','#00bcd4','#ff5722'];
-const EMOJIS = ['😊','😂','❤️','🔥','👍','🎉','😍','🙏','💀','🤣','😎','🥺','😅','🤔','✨','💪','😴','🥳','👀','💯','😭','😤','🤗','😇','🤩','😡','🥶','🤯','🫡','🫠'];
-
 let state = {
   code: null, username: null, isOwner: false,
   messageRef: null, presenceRef: null, presenceListener: null, typingRef: null,
@@ -508,41 +495,6 @@ function clearChat() {
   if (!confirm('Tüm mesajları silmek istediğine emin misin?')) return;
   db.ref('rooms/' + state.code + '/messages').remove();
 }
-
-function toggleEmoji() {
-  const picker = document.getElementById('emoji-picker');
-  const closed = picker.classList.contains('hidden');
-  if (closed) {
-    picker.classList.remove('hidden');
-    if (picker.children.length === 0) {
-      EMOJIS.forEach(function(e) {
-        const span = document.createElement('span');
-        span.textContent = e;
-        span.onclick = function() { insertEmoji(e); };
-        picker.appendChild(span);
-      });
-    }
-  } else {
-    picker.classList.add('hidden');
-  }
-}
-
-function insertEmoji(emoji) {
-  const input = document.getElementById('chat-input');
-  const start = input.selectionStart;
-  const end = input.selectionEnd;
-  input.value = input.value.substring(0, start) + emoji + input.value.substring(end);
-  input.selectionStart = input.selectionEnd = start + emoji.length;
-  input.focus();
-  document.getElementById('emoji-picker').classList.add('hidden');
-}
-
-document.addEventListener('click', function(e) {
-  const picker = document.getElementById('emoji-picker');
-  if (!picker.classList.contains('hidden') && !e.target.closest('.emoji-wrap')) {
-    picker.classList.add('hidden');
-  }
-});
 
 function sendMessage() {
   const input = document.getElementById('chat-input');
