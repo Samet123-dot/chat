@@ -96,6 +96,8 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
 .user-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; flex-shrink: 0; }
 .user-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
 .user-typing { font-size: 10px; color: #f39c12; font-style: italic; margin-left: 14px; width: 100%; }
+.kick-btn { background: none; border: 1px solid #e94560; color: #e94560; font-size: 10px; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: auto; transition: all 0.2s; }
+.kick-btn:hover { background: #e94560; color: #fff; }
 .user-count { font-size: 11px; color: var(--label); margin-bottom: 6px; }
 .chat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
 .chat-header h2 { font-size: 18px; }
@@ -300,8 +302,8 @@ const COLORS = ['#e94560','#2ecc71','#f39c12','#3498db','#9b59b6','#1abc9c','#e6
 let state = {
   code: null, username: null, isOwner: false, roomName: null,
   messageRef: null, presenceRef: null, presenceListener: null, typingRef: null,
-  typingTimeout: null, notifGranted: false, replyTo: null, replyUser: null,
-  seqRoomsRef: null, joiningSeqId: null
+  typingTimeout: null, notifGranted: false, replyTo: null, replyUser: null, typingListener: null,
+  seqRoomsRef: null, joiningSeqId: null, kickedRef: null
 };
 
 function getUserColor(name) {
@@ -576,6 +578,37 @@ function enterChat(code, username, roomName, badge) {
   state.typingRef = db.ref('rooms/' + code + '/typing/' + username);
   state.typingRef.onDisconnect().remove();
 
+  state.kickedRef = db.ref('rooms/' + code + '/kicked');
+  state.kickedRef.on('value', function(snap) {
+    if (snap.child(username).exists()) {
+      addSystemMessage('Odadan atıldınız!');
+      setTimeout(function() { leaveRoom(); }, 1500);
+    }
+  });
+
+  state.typingListener = db.ref('rooms/' + code + '/typing');
+  state.typingListener.on('value', function(snap) {
+    const typingUsers = [];
+    snap.forEach(function(c) {
+      if (c.val() === true && c.key !== username) typingUsers.push(c.key);
+    });
+    document.querySelectorAll('.user-item').forEach(function(el) {
+      const old = el.querySelector('.user-typing');
+      if (old) old.remove();
+    });
+    typingUsers.forEach(function(name) {
+      document.querySelectorAll('.user-item').forEach(function(el) {
+        const ne = el.querySelector('.user-name');
+        if (ne && ne.textContent === name && !el.querySelector('.user-typing')) {
+          const t = document.createElement('div');
+          t.className = 'user-typing';
+          t.textContent = 'yazıyor...';
+          el.appendChild(t);
+        }
+      });
+    });
+  });
+
   state.presenceListener = db.ref('rooms/' + code + '/presence');
   state.presenceListener.on('value', function(snapshot) {
     const users = [];
@@ -594,29 +627,16 @@ function updateUserList(users) {
     const div = document.createElement('div');
     div.className = 'user-item';
     div.innerHTML = '<span class="user-dot"></span><span class="user-name" style="color:' + getUserColor(name) + '">' + escapeHtml(name) + '</span>';
+    if (state.isOwner && name !== state.username) {
+      const kickBtn = document.createElement('button');
+      kickBtn.className = 'kick-btn';
+      kickBtn.textContent = 'At';
+      kickBtn.title = 'Kullanıcıyı odadan at';
+      kickBtn.onclick = function(e) { e.stopPropagation(); kickUser(name); };
+      div.appendChild(kickBtn);
+    }
     list.appendChild(div);
   });
-  if (state.typingRef) {
-    db.ref('rooms/' + state.code + '/typing').on('value', function(snap) {
-      const typingUsers = [];
-      snap.forEach(function(c) { if (c.val() === true && c.key !== state.username) typingUsers.push(c.key); });
-      document.querySelectorAll('.user-item').forEach(function(el) {
-        const old = el.querySelector('.user-typing');
-        if (old) old.remove();
-      });
-      typingUsers.forEach(function(name) {
-        document.querySelectorAll('.user-item').forEach(function(el) {
-          const ne = el.querySelector('.user-name');
-          if (ne && ne.textContent === name && !el.querySelector('.user-typing')) {
-            const t = document.createElement('div');
-            t.className = 'user-typing';
-            t.textContent = 'yazıyor...';
-            el.appendChild(t);
-          }
-        });
-      });
-    });
-  }
 }
 
 function onTyping() {
@@ -731,6 +751,20 @@ function clearChat() {
   db.ref('rooms/' + state.code + '/messages').remove();
 }
 
+function kickUser(name) {
+  if (!confirm('"' + name + '" odadan atılsın mı?')) return;
+  db.ref('rooms/' + state.code + '/kicked/' + name).set(true);
+  db.ref('rooms/' + state.code + '/presence').once('value').then(function(snap) {
+    snap.forEach(function(c) {
+      const u = c.val();
+      if (u && u.username === name) {
+        db.ref('rooms/' + state.code + '/presence/' + c.key).remove();
+      }
+    });
+  });
+  addSystemMessage(name + ' odadan atıldı.');
+}
+
 function sendMessage() {
   const input = document.getElementById('chat-input');
   const msg = input.value.trim();
@@ -752,7 +786,8 @@ function leaveRoom() {
   if (state.presenceListener) { state.presenceListener.off(); state.presenceListener = null; }
   if (state.presenceRef) { state.presenceRef.remove(); state.presenceRef = null; }
   if (state.typingRef) { state.typingRef.remove(); state.typingRef = null; }
-  db.ref('rooms/' + state.code + '/typing').off();
+  if (state.kickedRef) { state.kickedRef.off(); state.kickedRef = null; }
+  if (state.typingListener) { state.typingListener.off(); state.typingListener = null; }
   state.code = null; state.username = null; state.isOwner = false; state.roomName = null;
   document.getElementById('chat-view').classList.add('hidden');
   document.getElementById('auth-view').classList.remove('hidden');
