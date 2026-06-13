@@ -22,12 +22,14 @@ label { display: block; font-size: 13px; color: #aaa; margin-bottom: 6px; }
 input { width: 100%; padding: 12px 16px; background: #16213e; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 15px; outline: none; transition: border 0.2s; }
 input:focus { border-color: #e94560; }
 input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; font-weight: bold; }
-.btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+.btn { padding: 12px; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
 .btn-primary { background: #e94560; color: #fff; }
 .btn-primary:hover { background: #d63851; }
 .btn-success { background: #2ecc71; color: #fff; }
 .btn-success:hover { background: #27ae60; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-sm { padding: 8px 14px; font-size: 13px; }
+.btn-block { width: 100%; }
 .error-msg { color: #e94560; font-size: 13px; margin-top: 8px; text-align: center; min-height: 20px; }
 .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: #555; font-size: 13px; }
 .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #333; }
@@ -36,13 +38,15 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
 .chat-main { flex: 1; display: flex; flex-direction: column; }
 .chat-sidebar { width: 140px; background: #16213e; border-radius: 8px; padding: 12px; }
 .chat-sidebar h3 { font-size: 12px; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-.user-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; }
-.user-item { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 4px 0; }
+.user-list { display: flex; flex-direction: column; gap: 4px; max-height: 300px; overflow-y: auto; }
+.user-item { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 3px 0; }
 .user-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; flex-shrink: 0; }
-.user-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.user-count { font-size: 11px; color: #666; margin-bottom: 8px; }
+.user-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+.user-typing { font-size: 10px; color: #f39c12; font-style: italic; margin-left: 14px; }
+.user-count { font-size: 11px; color: #666; margin-bottom: 6px; }
 .chat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #333; }
 .chat-header h2 { font-size: 18px; }
+.chat-header-actions { display: flex; align-items: center; gap: 8px; }
 .chat-code-badge { background: #e94560; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; letter-spacing: 2px; }
 .chat-messages { height: 350px; overflow-y: auto; margin-bottom: 12px; padding: 12px; background: #16213e; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; }
 .chat-messages::-webkit-scrollbar { width: 6px; }
@@ -53,8 +57,6 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
 .msg.self { background: #e94560; align-self: flex-end; }
 .msg.other { background: #2a2a4a; align-self: flex-start; }
 .msg .sender { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
-.msg .sender.me { color: #ff8a9e; }
-.msg .sender.other { color: #7b7bda; }
 .msg .text { font-size: 14px; line-height: 1.4; }
 .msg .time { font-size: 10px; color: #888; text-align: right; margin-top: 4px; }
 .msg-actions { display: flex; gap: 6px; margin-top: 4px; justify-content: flex-end; }
@@ -64,18 +66,23 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
 .msg-actions .edit-btn { color: #f39c12; }
 .msg-actions .edit-btn:hover { background: rgba(243,156,18,0.2); }
 .msg.edited .text::after { content: ' (düzenlendi)'; font-size: 10px; color: #888; font-style: italic; }
-.edit-input { width: 100%; padding: 6px 10px; background: #1a1a2e; border: 1px solid #e94560; border-radius: 4px; color: #fff; font-size: 13px; outline: none; }
-.edit-actions { display: flex; gap: 4px; margin-top: 4px; }
-.edit-actions button { padding: 3px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
-.edit-actions .save-btn { background: #2ecc71; color: #fff; }
-.edit-actions .cancel-btn { background: #555; color: #fff; }
-.chat-input { display: flex; gap: 8px; }
+.chat-input { display: flex; gap: 6px; align-items: center; }
 .chat-input input { flex: 1; }
-.chat-input button { width: auto; padding: 12px 20px; white-space: nowrap; }
+.chat-input .btn-emoji { background: none; border: 1px solid #333; border-radius: 8px; cursor: pointer; font-size: 20px; padding: 8px 10px; line-height: 1; transition: all 0.2s; }
+.chat-input .btn-emoji:hover { border-color: #e94560; }
+.chat-input .btn-send { padding: 12px 18px; white-space: nowrap; }
 .leave-btn { background: transparent; border: 1px solid #444; color: #aaa; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
 .leave-btn:hover { border-color: #e94560; color: #e94560; }
+.clear-btn { background: transparent; border: 1px solid #e94560; color: #e94560; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+.clear-btn:hover { background: rgba(233,69,96,0.15); }
 .hidden { display: none; }
 .loading { text-align: center; color: #666; font-size: 13px; margin-top: 12px; }
+
+.emoji-picker { position: absolute; bottom: 60px; left: 20px; background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 10px; display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; z-index: 10; max-width: 280px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
+.emoji-picker span { text-align: center; padding: 4px; cursor: pointer; font-size: 22px; border-radius: 6px; transition: background 0.2s; }
+.emoji-picker span:hover { background: #333; }
+.emoji-wrap { position: relative; }
+
 @media (max-width: 540px) {
   .chat-sidebar { display: none; }
   .container { max-width: 100%; padding: 10px; }
@@ -87,24 +94,22 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
   <div id="auth-view" class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
       <h1 style="margin:0;">Chat 000</h1>
-      <span style="font-size:11px;color:#666;background:#0f0f0f;padding:3px 8px;border-radius:4px;border:1px solid #333;" id="version-badge">v1.5</span>
+      <span style="font-size:11px;color:#666;background:#0f0f0f;padding:3px 8px;border-radius:4px;border:1px solid #333;" id="version-badge">v1.6</span>
     </div>
     <p class="subtitle">4 haneli kod ile özel oda aç veya katıl</p>
     <div class="tabs">
       <button class="tab active" data-tab="create" onclick="switchTab('create')">Oda Aç</button>
       <button class="tab" data-tab="join" onclick="switchTab('join')">Katıl</button>
     </div>
-
     <div id="tab-create">
       <div class="form-group">
         <label>Kullanıcı Adı</label>
         <input type="text" id="create-username" placeholder="İsmin..." maxlength="20">
       </div>
-      <button class="btn btn-primary" id="btn-create" onclick="createRoom()">Oda Aç</button>
+      <button class="btn btn-primary btn-block" id="btn-create" onclick="createRoom()">Oda Aç</button>
       <div class="error-msg" id="create-error"></div>
       <div class="loading" id="create-loading" style="display:none;">Oda oluşturuluyor...</div>
     </div>
-
     <div id="tab-join" class="hidden">
       <div class="form-group">
         <label>Kullanıcı Adı</label>
@@ -114,11 +119,11 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
         <label>Oda Kodu (4 haneli)</label>
         <input type="text" class="code-input" id="join-code" placeholder="0000" maxlength="4" inputmode="numeric" pattern="[0-9]*">
       </div>
-      <button class="btn btn-primary" id="btn-join" onclick="joinRoom()">Katıl</button>
+      <button class="btn btn-primary btn-block" id="btn-join" onclick="joinRoom()">Katıl</button>
       <div class="error-msg" id="join-error"></div>
       <div class="loading" id="join-loading" style="display:none;">Odaya katılılıyor...</div>
       <div class="divider">veya</div>
-      <button class="btn btn-success" id="btn-public" onclick="joinPublicRoom()">Public Oda</button>
+      <button class="btn btn-success btn-block" id="btn-public" onclick="joinPublicRoom()">Public Oda</button>
     </div>
   </div>
 
@@ -128,7 +133,8 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
         <h2>Chat 000</h2>
         <span style="font-size:12px;color:#888;" id="chat-username-display"></span>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;">
+      <div class="chat-header-actions">
+        <button class="clear-btn hidden" id="btn-clear" onclick="clearChat()">Temizle</button>
         <span class="chat-code-badge" id="chat-code-display">0000</span>
         <button class="leave-btn" onclick="leaveRoom()">Çık</button>
       </div>
@@ -136,9 +142,13 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
     <div class="chat-layout">
       <div class="chat-main">
         <div class="chat-messages" id="chat-messages"></div>
-        <div class="chat-input">
-          <input type="text" id="chat-input" placeholder="Mesajınızı yazın..." maxlength="500" onkeydown="if(event.key==='Enter') sendMessage()">
-          <button class="btn btn-primary" onclick="sendMessage()">Gönder</button>
+        <div class="emoji-wrap">
+          <div class="chat-input">
+            <button class="btn-emoji" id="btn-emoji" onclick="toggleEmoji()">😊</button>
+            <input type="text" id="chat-input" placeholder="Mesajınızı yazın..." maxlength="500" onkeydown="if(event.key==='Enter') sendMessage()" oninput="onTyping()" onblur="stopTyping()">
+            <button class="btn btn-primary btn-send" onclick="sendMessage()">Gönder</button>
+          </div>
+          <div class="emoji-picker hidden" id="emoji-picker"></div>
         </div>
       </div>
       <div class="chat-sidebar" id="chat-sidebar">
@@ -166,8 +176,26 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 const PUBLIC_CODE = '0000';
+const COLORS = ['#e94560','#2ecc71','#f39c12','#3498db','#9b59b6','#1abc9c','#e67e22','#e91e63','#00bcd4','#ff5722'];
+const EMOJIS = ['😊','😂','❤️','🔥','👍','🎉','😍','🙏','💀','🤣','😎','🥺','😅','🤔','✨','💪','😴','🥳','👀','💯','😭','😤','🤗','😇','🤩','😡','🥶','🤯','🫡','🫠'];
 
-let state = { code: null, username: null, isOwner: false, messageRef: null, presenceRef: null, presenceListener: null };
+let state = {
+  code: null, username: null, isOwner: false,
+  messageRef: null, presenceRef: null, presenceListener: null, typingRef: null,
+  typingTimeout: null, emojiOpen: false, notifGranted: false
+};
+
+function getUserColor(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  return COLORS[Math.abs(h) % COLORS.length];
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
 
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -182,6 +210,38 @@ function showError(id, msg) {
   document.getElementById(id).textContent = msg;
 }
 
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.15);
+  } catch(e) {}
+}
+
+function sendNotif(title, body) {
+  if (state.notifGranted && document.hidden) {
+    try { new Notification(title, { body }); } catch(e) {}
+  }
+}
+
+async function requestNotif() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    const r = await Notification.requestPermission();
+    state.notifGranted = r === 'granted';
+  } else if ('Notification' in window) {
+    state.notifGranted = Notification.permission === 'granted';
+  }
+}
+
+requestNotif();
+
 async function createRoom() {
   const username = document.getElementById('create-username').value.trim();
   if (!username) { showError('create-error', 'Lütfen bir kullanıcı adı girin.'); return; }
@@ -191,9 +251,7 @@ async function createRoom() {
   try {
     const code = await generateUniqueCode();
     await db.ref('rooms/' + code).set({ created: Date.now(), createdBy: username });
-    state.code = code;
-    state.username = username;
-    state.isOwner = true;
+    state.code = code; state.username = username; state.isOwner = true;
     enterChat();
   } catch(e) {
     showError('create-error', 'Oda oluşturulamadı: ' + e.message);
@@ -203,12 +261,12 @@ async function createRoom() {
 }
 
 async function generateUniqueCode() {
-  for (let attempt = 0; attempt < 20; attempt++) {
-    const code = String(Math.floor(1000 + Math.random() * 9000));
-    const snap = await db.ref('rooms/' + code).once('value');
-    if (!snap.exists()) return code;
+  for (let a = 0; a < 20; a++) {
+    const c = String(Math.floor(1000 + Math.random() * 9000));
+    const s = await db.ref('rooms/' + c).once('value');
+    if (!s.exists()) return c;
   }
-  throw new Error('Kod üretilemedi, tekrar deneyin.');
+  throw new Error('Kod üretilemedi.');
 }
 
 async function joinRoom() {
@@ -216,8 +274,7 @@ async function joinRoom() {
   if (!username) { showError('join-error', 'Lütfen bir kullanıcı adı girin.'); return; }
   const code = document.getElementById('join-code').value.trim();
   if (code.length !== 4 || !/^\d{4}$/.test(code)) {
-    showError('join-error', 'Geçerli 4 haneli bir kod girin.');
-    return;
+    showError('join-error', 'Geçerli 4 haneli bir kod girin.'); return;
   }
   document.getElementById('btn-join').disabled = true;
   document.getElementById('join-loading').style.display = 'block';
@@ -225,13 +282,12 @@ async function joinRoom() {
   try {
     const snap = await db.ref('rooms/' + code).once('value');
     if (!snap.exists()) {
-      showError('join-error', 'Bu kod ile eşleşen oda bulunamadı.');
+      showError('join-error', 'Oda bulunamadı.');
       document.getElementById('btn-join').disabled = false;
       document.getElementById('join-loading').style.display = 'none';
       return;
     }
-    state.code = code;
-    state.username = username;
+    state.code = code; state.username = username;
     enterChat();
   } catch(e) {
     showError('join-error', 'Bağlantı hatası: ' + e.message);
@@ -250,8 +306,7 @@ async function joinPublicRoom() {
     if (!snap.exists()) {
       await db.ref('rooms/' + PUBLIC_CODE).set({ created: Date.now(), createdBy: 'system', public: true });
     }
-    state.code = PUBLIC_CODE;
-    state.username = username;
+    state.code = PUBLIC_CODE; state.username = username;
     enterChat();
   } catch(e) {
     showError('join-error', 'Bağlantı hatası: ' + e.message);
@@ -278,20 +333,18 @@ function enterChat() {
   if (!state.isOwner && state.code !== PUBLIC_CODE) {
     db.ref('rooms/' + state.code + '/createdBy').once('value').then(function(snap) {
       state.isOwner = (snap.val() === state.username);
+      document.getElementById('btn-clear').classList.toggle('hidden', !state.isOwner || state.code === PUBLIC_CODE);
     });
   }
+  document.getElementById('btn-clear').classList.toggle('hidden', !state.isOwner || state.code === PUBLIC_CODE);
 
   state.messageRef = db.ref('rooms/' + state.code + '/messages').limitToLast(50);
   state.messageRef.on('value', function(snapshot) {
     const container = document.getElementById('chat-messages');
     container.innerHTML = '';
     const msgs = [];
-    snapshot.forEach(function(child) {
-      msgs.push({ key: child.key, data: child.val() });
-    });
-    msgs.forEach(function(msg) {
-      addMessage(msg.key, msg.data);
-    });
+    snapshot.forEach(function(c) { msgs.push({ key: c.key, data: c.val() }); });
+    msgs.forEach(function(m) { addMessage(m.key, m.data); });
     container.scrollTop = container.scrollHeight;
   });
 
@@ -299,11 +352,14 @@ function enterChat() {
   state.presenceRef.set({ username: state.username, online: true, joinedAt: Date.now() });
   state.presenceRef.onDisconnect().remove();
 
+  state.typingRef = db.ref('rooms/' + state.code + '/typing/' + state.username);
+  state.typingRef.onDisconnect().remove();
+
   state.presenceListener = db.ref('rooms/' + state.code + '/presence');
   state.presenceListener.on('value', function(snapshot) {
     const users = [];
-    snapshot.forEach(function(child) {
-      const u = child.val();
+    snapshot.forEach(function(c) {
+      const u = c.val();
       if (u && u.username) users.push(u.username);
     });
     updateUserList(users);
@@ -319,15 +375,49 @@ function updateUserList(users) {
   unique.forEach(function(name) {
     const div = document.createElement('div');
     div.className = 'user-item';
-    div.innerHTML = '<span class="user-dot"></span><span class="user-name">' + escapeHtml(name) + '</span>';
+    div.innerHTML = '<span class="user-dot"></span><span class="user-name" style="color:' + getUserColor(name) + '">' + escapeHtml(name) + '</span>';
     list.appendChild(div);
+  });
+  db.ref('rooms/' + state.code + '/typing').on('value', function(snap) {
+    const typingUsers = [];
+    snap.forEach(function(c) {
+      if (c.val() === true && c.key !== state.username) typingUsers.push(c.key);
+    });
+    document.querySelectorAll('.user-item').forEach(function(el) {
+      const existing = el.querySelector('.user-typing');
+      if (existing) existing.remove();
+    });
+    typingUsers.forEach(function(name) {
+      document.querySelectorAll('.user-item').forEach(function(el) {
+        const nameEl = el.querySelector('.user-name');
+        if (nameEl && nameEl.textContent === name) {
+          if (!el.querySelector('.user-typing')) {
+            const t = document.createElement('div');
+            t.className = 'user-typing';
+            t.textContent = 'yazıyor...';
+            el.appendChild(t);
+          }
+        }
+      });
+    });
   });
 }
 
-function escapeHtml(str) {
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
+function onTyping() {
+  if (state.typingRef) {
+    state.typingRef.set(true);
+    clearTimeout(state.typingTimeout);
+    state.typingTimeout = setTimeout(function() {
+      if (state.typingRef) state.typingRef.remove();
+    }, 2000);
+  }
+}
+
+function stopTyping() {
+  if (state.typingRef) {
+    state.typingRef.remove();
+    clearTimeout(state.typingTimeout);
+  }
 }
 
 function addMessage(key, data) {
@@ -341,6 +431,12 @@ function addMessage(key, data) {
   }
   if (typeof data !== 'object' || data === null) return;
   if (data.deleted) return;
+
+  if (data.username !== state.username) {
+    playBeep();
+    sendNotif(data.username, data.message);
+  }
+
   const container = document.getElementById('chat-messages');
   const div = document.createElement('div');
   div.className = 'msg';
@@ -353,6 +449,7 @@ function addMessage(key, data) {
   const sender = document.createElement('div');
   sender.className = 'sender' + (isSelf ? ' me' : ' other');
   sender.textContent = isSelf ? 'Sen' : data.username;
+  if (!isSelf && data.username) sender.style.color = getUserColor(data.username);
   div.appendChild(sender);
 
   const text = document.createElement('div');
@@ -393,8 +490,7 @@ function addSystemMessage(text) {
 function deleteMessage(msgKey) {
   if (!confirm('Mesajı silmek istediğine emin misin?')) return;
   db.ref('rooms/' + state.code + '/messages/' + msgKey).update({
-    message: '[silindi]',
-    deleted: true,
+    message: '[silindi]', deleted: true,
     time: new Date().toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'})
   });
 }
@@ -403,42 +499,82 @@ function editMessage(msgKey, oldText) {
   const newText = prompt('Mesajı düzenle:', oldText);
   if (newText && newText.trim() && newText.trim() !== oldText) {
     db.ref('rooms/' + state.code + '/messages/' + msgKey).update({
-      message: newText.trim(),
-      edited: true
+      message: newText.trim(), edited: true
     });
   }
 }
+
+function clearChat() {
+  if (!confirm('Tüm mesajları silmek istediğine emin misin?')) return;
+  db.ref('rooms/' + state.code + '/messages').remove();
+}
+
+function toggleEmoji() {
+  const picker = document.getElementById('emoji-picker');
+  state.emojiOpen = !state.emojiOpen;
+  if (state.emojiOpen) {
+    picker.classList.remove('hidden');
+    if (picker.children.length === 0) {
+      EMOJIS.forEach(function(e) {
+        const span = document.createElement('span');
+        span.textContent = e;
+        span.onclick = function() { insertEmoji(e); };
+        picker.appendChild(span);
+      });
+    }
+  } else {
+    picker.classList.add('hidden');
+  }
+}
+
+function insertEmoji(emoji) {
+  const input = document.getElementById('chat-input');
+  const start = input.selectionStart;
+  const end = input.selectionEnd;
+  input.value = input.value.substring(0, start) + emoji + input.value.substring(end);
+  input.selectionStart = input.selectionEnd = start + emoji.length;
+  input.focus();
+  toggleEmoji();
+}
+
+document.addEventListener('click', function(e) {
+  if (state.emojiOpen && !e.target.closest('.emoji-wrap')) {
+    document.getElementById('emoji-picker').classList.add('hidden');
+    state.emojiOpen = false;
+  }
+});
 
 function sendMessage() {
   const input = document.getElementById('chat-input');
   const message = input.value.trim();
   if (!message || !state.code) return;
+  stopTyping();
   input.value = '';
   const now = new Date();
   const time = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
   db.ref('rooms/' + state.code + '/messages').push({
-    username: state.username,
-    message: message,
-    time: time,
+    username: state.username, message: message, time: time,
     timestamp: firebase.database.ServerValue.TIMESTAMP
   });
   input.focus();
 }
 
 function leaveRoom() {
+  stopTyping();
   if (state.isOwner && state.code !== PUBLIC_CODE) {
     db.ref('rooms/' + state.code).remove();
   }
   if (state.messageRef) { state.messageRef.off(); state.messageRef = null; }
   if (state.presenceListener) { state.presenceListener.off(); state.presenceListener = null; }
   if (state.presenceRef) { state.presenceRef.remove(); state.presenceRef = null; }
-  state.code = null;
-  state.username = null;
-  state.isOwner = false;
+  if (state.typingRef) { state.typingRef.remove(); state.typingRef = null; }
+  db.ref('rooms/' + state.code + '/typing').off();
+  state.code = null; state.username = null; state.isOwner = false;
   document.getElementById('chat-view').classList.add('hidden');
   document.getElementById('auth-view').classList.remove('hidden');
   document.getElementById('chat-messages').innerHTML = '';
   document.getElementById('join-code').value = '';
+  document.getElementById('btn-clear').classList.add('hidden');
 }
 </script>
 </body>
