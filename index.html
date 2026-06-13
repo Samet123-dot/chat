@@ -85,7 +85,10 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
 <body>
 <div class="container" id="app">
   <div id="auth-view" class="card">
-    <h1>Chat 000</h1>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <h1 style="margin:0;">Chat 000</h1>
+      <span style="font-size:11px;color:#666;background:#0f0f0f;padding:3px 8px;border-radius:4px;border:1px solid #333;" id="version-badge">v1.5</span>
+    </div>
     <p class="subtitle">4 haneli kod ile özel oda aç veya katıl</p>
     <div class="tabs">
       <button class="tab active" data-tab="create" onclick="switchTab('create')">Oda Aç</button>
@@ -279,21 +282,17 @@ function enterChat() {
   }
 
   state.messageRef = db.ref('rooms/' + state.code + '/messages').limitToLast(50);
-  state.messageRef.on('child_added', function(snapshot) {
-    addMessage(snapshot.key, snapshot.val());
-  });
-  state.messageRef.on('child_removed', function(snapshot) {
-    const el = document.querySelector('[data-key="' + snapshot.key + '"]');
-    if (el) el.remove();
-  });
-  state.messageRef.on('child_changed', function(snapshot) {
-    const el = document.querySelector('[data-key="' + snapshot.key + '"]');
-    if (el) {
-      const data = snapshot.val();
-      const textDiv = el.querySelector('.text');
-      if (textDiv) textDiv.textContent = data.message;
-      el.classList.add('edited');
-    }
+  state.messageRef.on('value', function(snapshot) {
+    const container = document.getElementById('chat-messages');
+    container.innerHTML = '';
+    const msgs = [];
+    snapshot.forEach(function(child) {
+      msgs.push({ key: child.key, data: child.val() });
+    });
+    msgs.forEach(function(msg) {
+      addMessage(msg.key, msg.data);
+    });
+    container.scrollTop = container.scrollHeight;
   });
 
   state.presenceRef = db.ref('rooms/' + state.code + '/presence').push();
@@ -338,7 +337,6 @@ function addMessage(key, data) {
     div.className = 'msg system';
     div.textContent = data.message;
     container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
     return;
   }
   if (typeof data !== 'object' || data === null) return;
@@ -385,7 +383,6 @@ function addMessage(key, data) {
   }
 
   container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
 }
 
 function addSystemMessage(text) {
