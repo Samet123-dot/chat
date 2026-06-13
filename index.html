@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat 000</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #e0e0e0; height: 100vh; display: flex; align-items: center; justify-content: center; }
+.container { width: 100%; max-width: 480px; padding: 20px; }
+.card { background: #1a1a2e; border-radius: 16px; padding: 32px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: #fff; }
+.subtitle { text-align: center; color: #888; margin-bottom: 28px; font-size: 14px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+.tab { flex: 1; padding: 10px; text-align: center; border: 1px solid #333; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 14px; background: transparent; color: #888; }
+.tab.active { background: #e94560; border-color: #e94560; color: #fff; }
+.tab:hover:not(.active) { border-color: #555; }
+.form-group { margin-bottom: 16px; }
+label { display: block; font-size: 13px; color: #aaa; margin-bottom: 6px; }
+input { width: 100%; padding: 12px 16px; background: #16213e; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 15px; outline: none; transition: border 0.2s; }
+input:focus { border-color: #e94560; }
+input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; font-weight: bold; }
+.btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+.btn-primary { background: #e94560; color: #fff; }
+.btn-primary:hover { background: #d63851; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.error-msg { color: #e94560; font-size: 13px; margin-top: 8px; text-align: center; min-height: 20px; }
+
+.chat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #333; }
+.chat-header h2 { font-size: 18px; }
+.chat-code-badge { background: #e94560; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; letter-spacing: 2px; }
+.chat-messages { height: 400px; overflow-y: auto; margin-bottom: 16px; padding: 12px; background: #16213e; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; }
+.chat-messages::-webkit-scrollbar { width: 6px; }
+.chat-messages::-webkit-scrollbar-track { background: #16213e; border-radius: 3px; }
+.chat-messages::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+.msg { padding: 8px 12px; border-radius: 8px; max-width: 85%; word-break: break-word; }
+.msg.system { background: transparent; color: #666; font-size: 12px; text-align: center; max-width: 100%; font-style: italic; }
+.msg.self { background: #e94560; align-self: flex-end; }
+.msg.other { background: #2a2a4a; align-self: flex-start; }
+.msg .sender { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+.msg .sender.me { color: #ff8a9e; }
+.msg .sender.other { color: #7b7bda; }
+.msg .text { font-size: 14px; line-height: 1.4; }
+.msg .time { font-size: 10px; color: #888; text-align: right; margin-top: 4px; }
+.chat-input { display: flex; gap: 8px; }
+.chat-input input { flex: 1; }
+.chat-input button { width: auto; padding: 12px 20px; white-space: nowrap; }
+.leave-btn { background: transparent; border: 1px solid #444; color: #aaa; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+.leave-btn:hover { border-color: #e94560; color: #e94560; }
+.hidden { display: none; }
+.loading { text-align: center; color: #666; font-size: 13px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="container" id="app">
+  <div id="auth-view" class="card">
+    <h1>Chat 000</h1>
+    <p class="subtitle">4 haneli kod ile özel oda aç veya katıl</p>
+    <div class="tabs">
+      <button class="tab active" data-tab="create" onclick="switchTab('create')">Oda Aç</button>
+      <button class="tab" data-tab="join" onclick="switchTab('join')">Katıl</button>
+    </div>
+
+    <div id="tab-create">
+      <div class="form-group">
+        <label>Kullanıcı Adı</label>
+        <input type="text" id="create-username" placeholder="İsmin..." maxlength="20">
+      </div>
+      <button class="btn btn-primary" id="btn-create" onclick="createRoom()">Oda Aç</button>
+      <div class="error-msg" id="create-error"></div>
+      <div class="loading" id="create-loading" style="display:none;">Oda oluşturuluyor...</div>
+    </div>
+
+    <div id="tab-join" class="hidden">
+      <div class="form-group">
+        <label>Kullanıcı Adı</label>
+        <input type="text" id="join-username" placeholder="İsmin..." maxlength="20">
+      </div>
+      <div class="form-group">
+        <label>Oda Kodu (4 haneli)</label>
+        <input type="text" class="code-input" id="join-code" placeholder="0000" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+      </div>
+      <button class="btn btn-primary" id="btn-join" onclick="joinRoom()">Katıl</button>
+      <div class="error-msg" id="join-error"></div>
+      <div class="loading" id="join-loading" style="display:none;">Odaya katılılıyor...</div>
+    </div>
+  </div>
+
+  <div id="chat-view" class="card hidden">
+    <div class="chat-header">
+      <div>
+        <h2>Chat 000</h2>
+        <span style="font-size:12px;color:#888;" id="chat-username-display"></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="chat-code-badge" id="chat-code-display">0000</span>
+        <button class="leave-btn" onclick="leaveRoom()">Çık</button>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input">
+      <input type="text" id="chat-input" placeholder="Mesajınızı yazın..." maxlength="500" onkeydown="if(event.key==='Enter') sendMessage()">
+      <button class="btn btn-primary" onclick="sendMessage()">Gönder</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// FIREBASE KONFİGÜRASYONU
+// Aşağıdaki bilgileri Firebase Console'dan alıp doldurun:
+// https://console.firebase.google.com → Project Settings → General → Your apps
+const firebaseConfig = {
+  apiKey: "AIzaSyAI7HDkt0SQeBGSzVv3mtDBeQKGm7lJi6o",
+  authDomain: "chat1-3319f.firebaseapp.com",
+  databaseURL: "https://chat1-3319f-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "chat1-3319f",
+  storageBucket: "chat1-3319f.firebasestorage.app",
+  messagingSenderId: "566562787781",
+  appId: "1:566562787781:web:877178672cfadae86abbac",
+  measurementId: "G-XMWHD3V907"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let state = { code: null, username: null, messageRef: null, presenceRef: null };
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('tab-create').classList.toggle('hidden', tab !== 'create');
+  document.getElementById('tab-join').classList.toggle('hidden', tab !== 'join');
+  document.getElementById('create-error').textContent = '';
+  document.getElementById('join-error').textContent = '';
+}
+
+function showError(id, msg) {
+  document.getElementById(id).textContent = msg;
+}
+
+async function createRoom() {
+  const username = document.getElementById('create-username').value.trim() || 'Anonymous';
+  document.getElementById('btn-create').disabled = true;
+  document.getElementById('create-loading').style.display = 'block';
+  showError('create-error', '');
+
+  try {
+    const code = await generateUniqueCode();
+    await db.ref('rooms/' + code).set({
+      created: Date.now(),
+      createdBy: username
+    });
+    state.code = code;
+    state.username = username;
+    enterChat();
+  } catch(e) {
+    showError('create-error', 'Oda oluşturulamadı: ' + e.message);
+    document.getElementById('btn-create').disabled = false;
+    document.getElementById('create-loading').style.display = 'none';
+  }
+}
+
+async function generateUniqueCode() {
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const code = String(Math.floor(1000 + Math.random() * 9000));
+    const snap = await db.ref('rooms/' + code).once('value');
+    if (!snap.exists()) return code;
+  }
+  throw new Error('Kod üretilemedi, tekrar deneyin.');
+}
+
+async function joinRoom() {
+  const username = document.getElementById('join-username').value.trim() || 'Anonymous';
+  const code = document.getElementById('join-code').value.trim();
+  if (code.length !== 4 || !/^\d{4}$/.test(code)) {
+    showError('join-error', 'Geçerli 4 haneli bir kod girin.');
+    return;
+  }
+  document.getElementById('btn-join').disabled = true;
+  document.getElementById('join-loading').style.display = 'block';
+  showError('join-error', '');
+
+  try {
+    const snap = await db.ref('rooms/' + code).once('value');
+    if (!snap.exists()) {
+      showError('join-error', 'Bu kod ile eşleşen oda bulunamadı.');
+      document.getElementById('btn-join').disabled = false;
+      document.getElementById('join-loading').style.display = 'none';
+      return;
+    }
+    state.code = code;
+    state.username = username;
+    enterChat();
+  } catch(e) {
+    showError('join-error', 'Bağlantı hatası: ' + e.message);
+    document.getElementById('btn-join').disabled = false;
+    document.getElementById('join-loading').style.display = 'none';
+  }
+}
+
+function enterChat() {
+  document.getElementById('auth-view').classList.add('hidden');
+  document.getElementById('chat-view').classList.remove('hidden');
+  document.getElementById('chat-code-display').textContent = state.code;
+  document.getElementById('chat-username-display').textContent = 'Giriş yapan: ' + state.username;
+  document.getElementById('chat-messages').innerHTML = '';
+  document.getElementById('chat-input').focus();
+
+  document.getElementById('btn-create').disabled = false;
+  document.getElementById('create-loading').style.display = 'none';
+  document.getElementById('btn-join').disabled = false;
+  document.getElementById('join-loading').style.display = 'none';
+
+  addSystemMessage('Odaya katıldınız. Kod: ' + state.code);
+
+  state.messageRef = db.ref('rooms/' + state.code + '/messages').limitToLast(50);
+  state.messageRef.on('child_added', function(snapshot) {
+    const data = snapshot.val();
+    addMessage(data);
+  });
+
+  state.presenceRef = db.ref('rooms/' + state.code + '/presence').push();
+  state.presenceRef.set({ username: state.username, online: true });
+  state.presenceRef.onDisconnect().remove();
+}
+
+function addMessage(data) {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg';
+
+  if (data.type === 'system') {
+    div.className = 'msg system';
+    div.textContent = data.message;
+  } else {
+    const isSelf = data.username === state.username;
+    div.classList.add(isSelf ? 'self' : 'other');
+
+    const sender = document.createElement('div');
+    sender.className = 'sender' + (isSelf ? ' me' : ' other');
+    sender.textContent = isSelf ? 'Sen' : data.username;
+    div.appendChild(sender);
+
+    const text = document.createElement('div');
+    text.className = 'text';
+    text.textContent = data.message;
+    div.appendChild(text);
+
+    if (data.time) {
+      const time = document.createElement('div');
+      time.className = 'time';
+      time.textContent = data.time;
+      div.appendChild(time);
+    }
+  }
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function addSystemMessage(text) {
+  addMessage({ type: 'system', message: text });
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const message = input.value.trim();
+  if (!message || !state.code) return;
+  input.value = '';
+
+  const now = new Date();
+  const time = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  const msgRef = db.ref('rooms/' + state.code + '/messages').push();
+  msgRef.set({
+    username: state.username,
+    message: message,
+    time: time,
+    timestamp: firebase.database.ServerValue.TIMESTAMP
+  });
+
+  input.focus();
+}
+
+function leaveRoom() {
+  if (state.messageRef) {
+    state.messageRef.off();
+    state.messageRef = null;
+  }
+  if (state.presenceRef) {
+    state.presenceRef.remove();
+    state.presenceRef = null;
+  }
+  state.code = null;
+  state.username = null;
+  document.getElementById('chat-view').classList.add('hidden');
+  document.getElementById('auth-view').classList.remove('hidden');
+  document.getElementById('chat-messages').innerHTML = '';
+  document.getElementById('join-code').value = '';
+}
+</script>
+</body>
+</html>
