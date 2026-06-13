@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,19 +7,47 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <style>
+:root {
+  --bg: #0f0f0f;
+  --card: #1a1a2e;
+  --text: #e0e0e0;
+  --input-bg: #16213e;
+  --border: #333;
+  --msg-other: #2a2a4a;
+  --label: #aaa;
+  --sidebar-bg: #16213e;
+  --system: #666;
+  --time: #888;
+  --badge-bg: #0f0f0f;
+}
+[data-theme="light"] {
+  --bg: #eef1f5;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --input-bg: #f0f2f5;
+  --border: #d0d5dd;
+  --msg-other: #e8ecf1;
+  --label: #666;
+  --sidebar-bg: #f0f2f5;
+  --system: #999;
+  --time: #aaa;
+  --badge-bg: #eef1f5;
+}
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #e0e0e0; height: 100vh; display: flex; align-items: center; justify-content: center; }
-.container { width: 100%; max-width: 520px; padding: 20px; }
-.card { background: #1a1a2e; border-radius: 16px; padding: 32px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
-h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: #fff; }
-.subtitle { text-align: center; color: #888; margin-bottom: 28px; font-size: 14px; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; align-items: center; justify-content: center; }
+.container { width: 100%; max-width: 540px; padding: 20px; }
+.card { background: var(--card); border-radius: 16px; padding: 32px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: var(--text); }
+.subtitle { text-align: center; color: var(--label); margin-bottom: 28px; font-size: 14px; }
 .tabs { display: flex; gap: 8px; margin-bottom: 24px; }
-.tab { flex: 1; padding: 10px; text-align: center; border: 1px solid #333; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 14px; background: transparent; color: #888; }
+.tab { flex: 1; padding: 10px; text-align: center; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 14px; background: transparent; color: var(--label); }
 .tab.active { background: #e94560; border-color: #e94560; color: #fff; }
 .tab:hover:not(.active) { border-color: #555; }
 .form-group { margin-bottom: 16px; }
-label { display: block; font-size: 13px; color: #aaa; margin-bottom: 6px; }
-input { width: 100%; padding: 12px 16px; background: #16213e; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 15px; outline: none; transition: border 0.2s; }
+.form-row { display: flex; gap: 12px; }
+.form-row .form-group { flex: 1; }
+label { display: block; font-size: 13px; color: var(--label); margin-bottom: 6px; }
+input { width: 100%; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 15px; outline: none; transition: border 0.2s; }
 input:focus { border-color: #e94560; }
 input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; font-weight: bold; }
 .btn { padding: 12px; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
@@ -30,51 +58,63 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-sm { padding: 8px 14px; font-size: 13px; }
 .btn-block { width: 100%; }
+.btn-icon { background: none; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 18px; padding: 6px 10px; line-height: 1; transition: all 0.2s; }
+.btn-icon:hover { border-color: #e94560; }
 .error-msg { color: #e94560; font-size: 13px; margin-top: 8px; text-align: center; min-height: 20px; }
 .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: #555; font-size: 13px; }
-.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #333; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
 .chat-layout { display: flex; gap: 16px; }
 .chat-main { flex: 1; display: flex; flex-direction: column; }
-.chat-sidebar { width: 140px; background: #16213e; border-radius: 8px; padding: 12px; }
-.chat-sidebar h3 { font-size: 12px; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.chat-sidebar { width: 140px; background: var(--sidebar-bg); border-radius: 8px; padding: 12px; flex-shrink: 0; }
+.chat-sidebar h3 { font-size: 12px; color: var(--label); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
 .user-list { display: flex; flex-direction: column; gap: 4px; max-height: 300px; overflow-y: auto; }
-.user-item { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 3px 0; }
+.user-item { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 3px 0; flex-wrap: wrap; }
 .user-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; flex-shrink: 0; }
 .user-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
-.user-typing { font-size: 10px; color: #f39c12; font-style: italic; margin-left: 14px; }
-.user-count { font-size: 11px; color: #666; margin-bottom: 6px; }
-.chat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #333; }
+.user-typing { font-size: 10px; color: #f39c12; font-style: italic; margin-left: 14px; width: 100%; }
+.user-count { font-size: 11px; color: var(--label); margin-bottom: 6px; }
+.chat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
 .chat-header h2 { font-size: 18px; }
 .chat-header-actions { display: flex; align-items: center; gap: 8px; }
-.chat-code-badge { background: #e94560; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; letter-spacing: 2px; }
-.chat-messages { height: 350px; overflow-y: auto; margin-bottom: 12px; padding: 12px; background: #16213e; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; }
+.chat-code-badge { background: #e94560; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; letter-spacing: 2px; color:#fff; }
+.chat-messages { height: 350px; overflow-y: auto; margin-bottom: 8px; padding: 12px; background: var(--input-bg); border-radius: 8px; display: flex; flex-direction: column; gap: 8px; }
 .chat-messages::-webkit-scrollbar { width: 6px; }
-.chat-messages::-webkit-scrollbar-track { background: #16213e; border-radius: 3px; }
-.chat-messages::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+.chat-messages::-webkit-scrollbar-track { background: var(--input-bg); border-radius: 3px; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 .msg { padding: 8px 12px; border-radius: 8px; max-width: 85%; word-break: break-word; }
-.msg.system { background: transparent; color: #666; font-size: 12px; text-align: center; max-width: 100%; font-style: italic; }
+.msg.system { background: transparent; color: var(--system); font-size: 12px; text-align: center; max-width: 100%; font-style: italic; }
 .msg.self { background: #e94560; align-self: flex-end; }
-.msg.other { background: #2a2a4a; align-self: flex-start; }
+.msg.other { background: var(--msg-other); align-self: flex-start; }
 .msg .sender { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
 .msg .text { font-size: 14px; line-height: 1.4; }
-.msg .time { font-size: 10px; color: #888; text-align: right; margin-top: 4px; }
-.msg-actions { display: flex; gap: 6px; margin-top: 4px; justify-content: flex-end; }
+.msg .time { font-size: 10px; color: var(--time); text-align: right; margin-top: 4px; }
+.msg-actions { display: flex; gap: 6px; margin-top: 4px; }
 .msg-actions button { background: none; border: none; cursor: pointer; font-size: 11px; padding: 2px 6px; border-radius: 4px; transition: all 0.2s; }
 .msg-actions .del-btn { color: #e94560; }
 .msg-actions .del-btn:hover { background: rgba(233,69,96,0.2); }
 .msg-actions .edit-btn { color: #f39c12; }
 .msg-actions .edit-btn:hover { background: rgba(243,156,18,0.2); }
-.msg.edited .text::after { content: ' (düzenlendi)'; font-size: 10px; color: #888; font-style: italic; }
-.chat-input { display: flex; gap: 6px; align-items: center; }
-.chat-input input { flex: 1; }
+.msg-actions .reply-btn { color: #3498db; }
+.msg-actions .reply-btn:hover { background: rgba(52,152,219,0.2); }
+.msg.edited .text::after { content: ' (düzenlendi)'; font-size: 10px; color: var(--time); font-style: italic; }
+.reply-quote { font-size: 12px; color: var(--label); background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; border-left: 3px solid #3498db; }
+.reply-quote .rq-user { font-weight: 600; }
+.chat-input-wrap { position: relative; }
+.reply-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 8px 8px 0 0; margin-bottom: 0; font-size: 12px; color: var(--label); }
+.reply-bar span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.reply-bar .rbu { font-weight: 600; color: #3498db; }
+.reply-bar button { background: none; border: none; cursor: pointer; font-size: 16px; color: var(--label); padding: 0 4px; }
+.reply-bar button:hover { color: #e94560; }
+.chat-input { display: flex; gap: 6px; align-items: center; margin-top: 0; }
+.chat-input input { flex: 1; border-radius: 8px; }
 .chat-input .btn-send { padding: 12px 18px; white-space: nowrap; }
-.leave-btn { background: transparent; border: 1px solid #444; color: #aaa; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+.leave-btn { background: transparent; border: 1px solid var(--border); color: var(--label); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
 .leave-btn:hover { border-color: #e94560; color: #e94560; }
 .clear-btn { background: transparent; border: 1px solid #e94560; color: #e94560; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
 .clear-btn:hover { background: rgba(233,69,96,0.15); }
-.hidden { display: none; }
-.loading { text-align: center; color: #666; font-size: 13px; margin-top: 12px; }
+.hidden { display: none !important; }
+.loading { text-align: center; color: var(--label); font-size: 13px; margin-top: 12px; }
 
 @media (max-width: 540px) {
   .chat-sidebar { display: none; }
@@ -87,7 +127,10 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
   <div id="auth-view" class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
       <h1 style="margin:0;">Chat 000</h1>
-      <span style="font-size:11px;color:#666;background:#0f0f0f;padding:3px 8px;border-radius:4px;border:1px solid #333;" id="version-badge">v1.7</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;color:var(--label);background:var(--badge-bg);padding:3px 8px;border-radius:4px;border:1px solid var(--border);" id="version-badge">v1.7</span>
+        <button class="btn-icon" onclick="toggleTheme()" id="theme-btn" title="Tema değiştir">🌙</button>
+      </div>
     </div>
     <p class="subtitle">4 haneli kod ile özel oda aç veya katıl</p>
     <div class="tabs">
@@ -99,6 +142,10 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
         <label>Kullanıcı Adı</label>
         <input type="text" id="create-username" placeholder="İsmin..." maxlength="20">
       </div>
+      <div class="form-group">
+        <label>Oda Şifresi <span style="font-weight:400;color:var(--system);">(opsiyonel)</span></label>
+        <input type="text" id="create-password" placeholder="Şifre belirle..." maxlength="10">
+      </div>
       <button class="btn btn-primary btn-block" id="btn-create" onclick="createRoom()">Oda Aç</button>
       <div class="error-msg" id="create-error"></div>
       <div class="loading" id="create-loading" style="display:none;">Oda oluşturuluyor...</div>
@@ -108,9 +155,15 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
         <label>Kullanıcı Adı</label>
         <input type="text" id="join-username" placeholder="İsmin..." maxlength="20">
       </div>
-      <div class="form-group">
-        <label>Oda Kodu (4 haneli)</label>
-        <input type="text" class="code-input" id="join-code" placeholder="0000" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Oda Kodu</label>
+          <input type="text" class="code-input" id="join-code" placeholder="0000" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+        </div>
+        <div class="form-group">
+          <label>Şifre <span style="font-weight:400;color:var(--system);">(varsa)</span></label>
+          <input type="text" id="join-password" placeholder="Şifre..." maxlength="10">
+        </div>
       </div>
       <button class="btn btn-primary btn-block" id="btn-join" onclick="joinRoom()">Katıl</button>
       <div class="error-msg" id="join-error"></div>
@@ -124,9 +177,10 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
     <div class="chat-header">
       <div>
         <h2>Chat 000</h2>
-        <span style="font-size:12px;color:#888;" id="chat-username-display"></span>
+        <span style="font-size:12px;color:var(--label);" id="chat-username-display"></span>
       </div>
       <div class="chat-header-actions">
+        <button class="btn-icon" onclick="toggleTheme()" id="theme-btn2" title="Tema değiştir">🌙</button>
         <button class="clear-btn hidden" id="btn-clear" onclick="clearChat()">Temizle</button>
         <span class="chat-code-badge" id="chat-code-display">0000</span>
         <button class="leave-btn" onclick="leaveRoom()">Çık</button>
@@ -135,6 +189,10 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
     <div class="chat-layout">
       <div class="chat-main">
         <div class="chat-messages" id="chat-messages"></div>
+        <div class="reply-bar hidden" id="reply-bar">
+          <span>Yanıtlıyorsun: <span class="rbu" id="reply-user"></span> — <span id="reply-text"></span></span>
+          <button onclick="cancelReply()">✕</button>
+        </div>
         <div class="chat-input">
           <input type="text" id="chat-input" placeholder="Mesajınızı yazın..." maxlength="500" onkeydown="if(event.key==='Enter') sendMessage()" oninput="onTyping()" onblur="stopTyping()">
           <button class="btn btn-primary btn-send" onclick="sendMessage()">Gönder</button>
@@ -169,7 +227,7 @@ const COLORS = ['#e94560','#2ecc71','#f39c12','#3498db','#9b59b6','#1abc9c','#e6
 let state = {
   code: null, username: null, isOwner: false,
   messageRef: null, presenceRef: null, presenceListener: null, typingRef: null,
-  typingTimeout: null, notifGranted: false
+  typingTimeout: null, notifGranted: false, replyTo: null, replyUser: null
 };
 
 function getUserColor(name) {
@@ -229,15 +287,39 @@ async function requestNotif() {
 
 requestNotif();
 
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('chat-theme', next);
+  const icon = next === 'dark' ? '🌙' : '☀️';
+  document.getElementById('theme-btn').textContent = icon;
+  document.getElementById('theme-btn2').textContent = icon;
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('chat-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  const icon = saved === 'dark' ? '🌙' : '☀️';
+  const b1 = document.getElementById('theme-btn');
+  const b2 = document.getElementById('theme-btn2');
+  if (b1) b1.textContent = icon;
+  if (b2) b2.textContent = icon;
+})();
+
 async function createRoom() {
   const username = document.getElementById('create-username').value.trim();
   if (!username) { showError('create-error', 'Lütfen bir kullanıcı adı girin.'); return; }
+  const password = document.getElementById('create-password').value.trim();
   document.getElementById('btn-create').disabled = true;
   document.getElementById('create-loading').style.display = 'block';
   showError('create-error', '');
   try {
     const code = await generateUniqueCode();
-    await db.ref('rooms/' + code).set({ created: Date.now(), createdBy: username });
+    const roomData = { created: Date.now(), createdBy: username };
+    if (password) roomData.password = password;
+    await db.ref('rooms/' + code).set(roomData);
     state.code = code; state.username = username; state.isOwner = true;
     enterChat();
   } catch(e) {
@@ -274,6 +356,14 @@ async function joinRoom() {
       document.getElementById('join-loading').style.display = 'none';
       return;
     }
+    const room = snap.val();
+    const password = document.getElementById('join-password').value.trim();
+    if (room.password && room.password !== password) {
+      showError('join-error', 'Şifre yanlış.');
+      document.getElementById('btn-join').disabled = false;
+      document.getElementById('join-loading').style.display = 'none';
+      return;
+    }
     state.code = code; state.username = username;
     enterChat();
   } catch(e) {
@@ -301,6 +391,21 @@ async function joinPublicRoom() {
   }
 }
 
+function showReplyBar(user, text) {
+  state.replyTo = text;
+  state.replyUser = user;
+  document.getElementById('reply-user').textContent = user;
+  document.getElementById('reply-text').textContent = text.length > 50 ? text.slice(0, 50) + '...' : text;
+  document.getElementById('reply-bar').classList.remove('hidden');
+  document.getElementById('chat-input').focus();
+}
+
+function cancelReply() {
+  state.replyTo = null;
+  state.replyUser = null;
+  document.getElementById('reply-bar').classList.add('hidden');
+}
+
 function enterChat() {
   document.getElementById('auth-view').classList.add('hidden');
   document.getElementById('chat-view').classList.remove('hidden');
@@ -308,6 +413,7 @@ function enterChat() {
   document.getElementById('chat-username-display').textContent = 'Giriş yapan: ' + state.username;
   document.getElementById('chat-messages').innerHTML = '';
   document.getElementById('chat-input').focus();
+  cancelReply();
 
   document.getElementById('btn-create').disabled = false;
   document.getElementById('create-loading').style.display = 'none';
@@ -433,6 +539,13 @@ function addMessage(key, data) {
   div.classList.add(isSelf ? 'self' : 'other');
   if (data.edited) div.classList.add('edited');
 
+  if (data.replyTo && data.replyUser) {
+    const rq = document.createElement('div');
+    rq.className = 'reply-quote';
+    rq.innerHTML = '<span class="rq-user">' + escapeHtml(data.replyUser) + '</span>: ' + escapeHtml(data.replyTo);
+    div.appendChild(rq);
+  }
+
   const sender = document.createElement('div');
   sender.className = 'sender' + (isSelf ? ' me' : ' other');
   sender.textContent = isSelf ? 'Sen' : data.username;
@@ -451,9 +564,18 @@ function addMessage(key, data) {
     div.appendChild(time);
   }
 
+  const actions = document.createElement('div');
+  actions.className = 'msg-actions';
+
+  if (key) {
+    const replyBtn = document.createElement('button');
+    replyBtn.className = 'reply-btn';
+    replyBtn.textContent = 'Yanıtla';
+    replyBtn.onclick = function() { showReplyBar(data.username, data.message); };
+    actions.appendChild(replyBtn);
+  }
+
   if (state.isOwner && state.code !== PUBLIC_CODE && key) {
-    const actions = document.createElement('div');
-    actions.className = 'msg-actions';
     const editBtn = document.createElement('button');
     editBtn.className = 'edit-btn';
     editBtn.textContent = 'Düzenle';
@@ -464,8 +586,9 @@ function addMessage(key, data) {
     delBtn.onclick = function() { deleteMessage(key); };
     actions.appendChild(editBtn);
     actions.appendChild(delBtn);
-    div.appendChild(actions);
   }
+
+  if (actions.children.length > 0) div.appendChild(actions);
 
   container.appendChild(div);
 }
@@ -504,15 +627,22 @@ function sendMessage() {
   input.value = '';
   const now = new Date();
   const time = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-  db.ref('rooms/' + state.code + '/messages').push({
+  const msgData = {
     username: state.username, message: message, time: time,
     timestamp: firebase.database.ServerValue.TIMESTAMP
-  });
+  };
+  if (state.replyTo && state.replyUser) {
+    msgData.replyTo = state.replyTo;
+    msgData.replyUser = state.replyUser;
+    cancelReply();
+  }
+  db.ref('rooms/' + state.code + '/messages').push(msgData);
   input.focus();
 }
 
 function leaveRoom() {
   stopTyping();
+  cancelReply();
   if (state.isOwner && state.code !== PUBLIC_CODE) {
     db.ref('rooms/' + state.code).remove();
   }
