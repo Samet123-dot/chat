@@ -57,6 +57,18 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
 .msg .sender.other { color: #7b7bda; }
 .msg .text { font-size: 14px; line-height: 1.4; }
 .msg .time { font-size: 10px; color: #888; text-align: right; margin-top: 4px; }
+.msg-actions { display: flex; gap: 6px; margin-top: 4px; justify-content: flex-end; }
+.msg-actions button { background: none; border: none; cursor: pointer; font-size: 11px; padding: 2px 6px; border-radius: 4px; transition: all 0.2s; }
+.msg-actions .del-btn { color: #e94560; }
+.msg-actions .del-btn:hover { background: rgba(233,69,96,0.2); }
+.msg-actions .edit-btn { color: #f39c12; }
+.msg-actions .edit-btn:hover { background: rgba(243,156,18,0.2); }
+.msg.edited .text::after { content: ' (düzenlendi)'; font-size: 10px; color: #888; font-style: italic; }
+.edit-input { width: 100%; padding: 6px 10px; background: #1a1a2e; border: 1px solid #e94560; border-radius: 4px; color: #fff; font-size: 13px; outline: none; }
+.edit-actions { display: flex; gap: 4px; margin-top: 4px; }
+.edit-actions button { padding: 3px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
+.edit-actions .save-btn { background: #2ecc71; color: #fff; }
+.edit-actions .cancel-btn { background: #555; color: #fff; }
 .chat-input { display: flex; gap: 8px; }
 .chat-input input { flex: 1; }
 .chat-input button { width: auto; padding: 12px 20px; white-space: nowrap; }
@@ -152,7 +164,7 @@ const db = firebase.database();
 
 const PUBLIC_CODE = '0000';
 
-let state = { code: null, username: null, messageRef: null, presenceRef: null, presenceListener: null };
+let state = { code: null, username: null, isOwner: false, messageRef: null, presenceRef: null, presenceListener: null };
 
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -178,6 +190,7 @@ async function createRoom() {
     await db.ref('rooms/' + code).set({ created: Date.now(), createdBy: username });
     state.code = code;
     state.username = username;
+    state.isOwner = true;
     enterChat();
   } catch(e) {
     showError('create-error', 'Oda oluşturulamadı: ' + e.message);
@@ -259,9 +272,15 @@ function enterChat() {
 
   addSystemMessage('Odaya katıldınız. Kod: ' + state.code);
 
+  if (!state.isOwner && state.code !== PUBLIC_CODE) {
+    db.ref('rooms/' + state.code + '/createdBy').once('value').then(function(snap) {
+      state.isOwner = (snap.val() === state.username);
+    });
+  }
+
   state.messageRef = db.ref('rooms/' + state.code + '/messages').limitToLast(50);
   state.messageRef.on('child_added', function(snapshot) {
-    addMessage(snapshot.val());
+    addMessage(snapshot.key, snapshot.val());
   });
 
   state.presenceRef = db.ref('rooms/' + state.code + '/presence').push();
@@ -299,37 +318,79 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
-function addMessage(data) {
+function addMessage(key, data) {
+  if (typeof data === 'object' && data !== null && data.type === 'system') {
+    const container = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = 'msg system';
+    div.textContent = data.message;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return;
+  }
+  if (typeof data !== 'object' || data === null) return;
   const container = document.getElementById('chat-messages');
   const div = document.createElement('div');
   div.className = 'msg';
-  if (data.type === 'system') {
-    div.className = 'msg system';
-    div.textContent = data.message;
-  } else {
-    const isSelf = data.username === state.username;
-    div.classList.add(isSelf ? 'self' : 'other');
-    const sender = document.createElement('div');
-    sender.className = 'sender' + (isSelf ? ' me' : ' other');
-    sender.textContent = isSelf ? 'Sen' : data.username;
-    div.appendChild(sender);
-    const text = document.createElement('div');
-    text.className = 'text';
-    text.textContent = data.message;
-    div.appendChild(text);
-    if (data.time) {
-      const time = document.createElement('div');
-      time.className = 'time';
-      time.textContent = data.time;
-      div.appendChild(time);
-    }
+
+  const isSelf = data.username === state.username;
+  div.classList.add(isSelf ? 'self' : 'other');
+  if (data.edited) div.classList.add('edited');
+
+  const sender = document.createElement('div');
+  sender.className = 'sender' + (isSelf ? ' me' : ' other');
+  sender.textContent = isSelf ? 'Sen' : data.username;
+  div.appendChild(sender);
+
+  const text = document.createElement('div');
+  text.className = 'text';
+  text.textContent = data.message;
+  div.appendChild(text);
+
+  if (data.time) {
+    const time = document.createElement('div');
+    time.className = 'time';
+    time.textContent = data.time;
+    div.appendChild(time);
   }
+
+  if (state.isOwner && state.code !== PUBLIC_CODE && key) {
+    const actions = document.createElement('div');
+    actions.className = 'msg-actions';
+    const editBtn = document.createElement('button');
+    editBtn.className = 'edit-btn';
+    editBtn.textContent = 'Düzenle';
+    editBtn.onclick = function() { editMessage(key, data.message); };
+    const delBtn = document.createElement('button');
+    delBtn.className = 'del-btn';
+    delBtn.textContent = 'Sil';
+    delBtn.onclick = function() { deleteMessage(key); };
+    actions.appendChild(editBtn);
+    actions.appendChild(delBtn);
+    div.appendChild(actions);
+  }
+
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
 
 function addSystemMessage(text) {
-  addMessage({ type: 'system', message: text });
+  addMessage(null, { type: 'system', message: text });
+}
+
+function deleteMessage(msgKey) {
+  if (!confirm('Mesajı silmek istediğine emin misin?')) return;
+  db.ref('rooms/' + state.code + '/messages/' + msgKey).remove();
+}
+
+function editMessage(msgKey, oldText) {
+  const newText = prompt('Mesajı düzenle:', oldText);
+  if (newText && newText.trim() && newText.trim() !== oldText) {
+    db.ref('rooms/' + state.code + '/messages/' + msgKey).update({
+      message: newText.trim(),
+      edited: true
+    });
+  }
 }
 
 function sendMessage() {
@@ -349,11 +410,15 @@ function sendMessage() {
 }
 
 function leaveRoom() {
+  if (state.isOwner && state.code !== PUBLIC_CODE) {
+    db.ref('rooms/' + state.code).remove();
+  }
   if (state.messageRef) { state.messageRef.off(); state.messageRef = null; }
   if (state.presenceListener) { state.presenceListener.off(); state.presenceListener = null; }
   if (state.presenceRef) { state.presenceRef.remove(); state.presenceRef = null; }
   state.code = null;
   state.username = null;
+  state.isOwner = false;
   document.getElementById('chat-view').classList.add('hidden');
   document.getElementById('auth-view').classList.remove('hidden');
   document.getElementById('chat-messages').innerHTML = '';
