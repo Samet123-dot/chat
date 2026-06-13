@@ -19,6 +19,7 @@
   --system: #666;
   --time: #888;
   --badge-bg: #0f0f0f;
+  --hover: #2a2a4a;
 }
 [data-theme="light"] {
   --bg: #eef1f5;
@@ -32,37 +33,41 @@
   --system: #999;
   --time: #aaa;
   --badge-bg: #eef1f5;
+  --hover: #e8ecf1;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; align-items: center; justify-content: center; }
 .container { width: 100%; max-width: 540px; padding: 20px; }
 .card { background: var(--card); border-radius: 16px; padding: 32px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
 h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: var(--text); }
-.subtitle { text-align: center; color: var(--label); margin-bottom: 28px; font-size: 14px; }
-.tabs { display: flex; gap: 8px; margin-bottom: 24px; }
-.tab { flex: 1; padding: 10px; text-align: center; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 14px; background: transparent; color: var(--label); }
-.tab.active { background: #e94560; border-color: #e94560; color: #fff; }
-.tab:hover:not(.active) { border-color: #555; }
-.form-group { margin-bottom: 16px; }
-.form-row { display: flex; gap: 12px; }
-.form-row .form-group { flex: 1; }
+.subtitle { text-align: center; color: var(--label); margin-bottom: 24px; font-size: 14px; }
 label { display: block; font-size: 13px; color: var(--label); margin-bottom: 6px; }
 input { width: 100%; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 15px; outline: none; transition: border 0.2s; }
 input:focus { border-color: #e94560; }
-input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; font-weight: bold; }
+.form-group { margin-bottom: 16px; }
+.form-row { display: flex; gap: 12px; }
+.form-row .form-group { flex: 1; }
 .btn { padding: 12px; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
 .btn-primary { background: #e94560; color: #fff; }
 .btn-primary:hover { background: #d63851; }
-.btn-success { background: #2ecc71; color: #fff; }
-.btn-success:hover { background: #27ae60; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-sm { padding: 8px 14px; font-size: 13px; }
 .btn-block { width: 100%; }
 .btn-icon { background: none; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 18px; padding: 6px 10px; line-height: 1; transition: all 0.2s; }
 .btn-icon:hover { border-color: #e94560; }
 .error-msg { color: #e94560; font-size: 13px; margin-top: 8px; text-align: center; min-height: 20px; }
-.divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: #555; font-size: 13px; }
-.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.loading { text-align: center; color: var(--label); font-size: 13px; margin-top: 12px; }
+
+.room-create { background: var(--input-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
+.room-list-title { font-size: 13px; color: var(--label); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+.room-list { display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; }
+.room-item { background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; }
+.room-item:hover { border-color: #e94560; background: var(--hover); }
+.room-item .ri-left { display: flex; flex-direction: column; gap: 2px; }
+.room-item .ri-name { font-size: 15px; font-weight: 600; }
+.room-item .ri-meta { font-size: 12px; color: var(--label); }
+.room-item .ri-lock { font-size: 16px; }
+.room-empty { text-align: center; color: var(--label); font-size: 13px; padding: 20px; }
 
 .chat-layout { display: flex; gap: 16px; }
 .chat-main { flex: 1; display: flex; flex-direction: column; }
@@ -77,8 +82,8 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
 .chat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
 .chat-header h2 { font-size: 18px; }
 .chat-header-actions { display: flex; align-items: center; gap: 8px; }
-.chat-code-badge { background: #e94560; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; letter-spacing: 2px; color:#fff; }
-.chat-messages { height: 350px; overflow-y: auto; margin-bottom: 8px; padding: 12px; background: var(--input-bg); border-radius: 8px; display: flex; flex-direction: column; gap: 8px; }
+.chat-code-badge { background: #e94560; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; letter-spacing: 0; color: #fff; }
+.chat-messages { height: 320px; overflow-y: auto; margin-bottom: 8px; padding: 12px; background: var(--input-bg); border-radius: 8px; display: flex; flex-direction: column; gap: 8px; }
 .chat-messages::-webkit-scrollbar { width: 6px; }
 .chat-messages::-webkit-scrollbar-track { background: var(--input-bg); border-radius: 3px; }
 .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -100,8 +105,7 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
 .msg.edited .text::after { content: ' (düzenlendi)'; font-size: 10px; color: var(--time); font-style: italic; }
 .reply-quote { font-size: 12px; color: var(--label); background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; border-left: 3px solid #3498db; }
 .reply-quote .rq-user { font-weight: 600; }
-.chat-input-wrap { position: relative; }
-.reply-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 8px 8px 0 0; margin-bottom: 0; font-size: 12px; color: var(--label); }
+.reply-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 8px 8px 0 0; font-size: 12px; color: var(--label); }
 .reply-bar span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .reply-bar .rbu { font-weight: 600; color: #3498db; }
 .reply-bar button { background: none; border: none; cursor: pointer; font-size: 16px; color: var(--label); padding: 0 4px; }
@@ -114,11 +118,11 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
 .clear-btn { background: transparent; border: 1px solid #e94560; color: #e94560; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
 .clear-btn:hover { background: rgba(233,69,96,0.15); }
 .hidden { display: none !important; }
-.loading { text-align: center; color: var(--label); font-size: 13px; margin-top: 12px; }
 
 @media (max-width: 540px) {
   .chat-sidebar { display: none; }
   .container { max-width: 100%; padding: 10px; }
+  .card { padding: 20px; }
 }
 </style>
 </head>
@@ -128,61 +132,59 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
       <h1 style="margin:0;">Chat 000</h1>
       <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:11px;color:var(--label);background:var(--badge-bg);padding:3px 8px;border-radius:4px;border:1px solid var(--border);" id="version-badge">v1.7</span>
-        <button class="btn-icon" onclick="toggleTheme()" id="theme-btn" title="Tema değiştir">🌙</button>
+        <span style="font-size:11px;color:var(--label);background:var(--badge-bg);padding:3px 8px;border-radius:4px;border:1px solid var(--border);">v1.8</span>
+        <button class="btn-icon" onclick="toggleTheme()" id="theme-btn" title="Tema">🌙</button>
       </div>
     </div>
-    <p class="subtitle">4 haneli kod ile özel oda aç veya katıl</p>
-    <div class="tabs">
-      <button class="tab active" data-tab="create" onclick="switchTab('create')">Oda Aç</button>
-      <button class="tab" data-tab="join" onclick="switchTab('join')">Katıl</button>
+    <p class="subtitle">Sıralı odalar — oda aç, herkes görsün, tıkla katıl</p>
+    <div class="form-group">
+      <label>Kullanıcı Adı</label>
+      <input type="text" id="create-username" placeholder="İsmin..." maxlength="20">
     </div>
-    <div id="tab-create">
+    <button class="btn btn-primary btn-block" id="btn-create" onclick="showCreateForm()" style="margin-bottom:20px;">+ Yeni Oda Aç</button>
+    <div id="create-form" class="room-create hidden">
       <div class="form-group">
-        <label>Kullanıcı Adı</label>
-        <input type="text" id="create-username" placeholder="İsmin..." maxlength="20">
+        <label>Oda Adı</label>
+        <input type="text" id="room-name" placeholder="Oda adı..." maxlength="30">
       </div>
       <div class="form-group">
-        <label>Oda Şifresi <span style="font-weight:400;color:var(--system);">(opsiyonel)</span></label>
-        <input type="text" id="create-password" placeholder="Şifre belirle..." maxlength="10">
+        <label>Şifre <span style="font-weight:400;color:var(--system);">(opsiyonel)</span></label>
+        <input type="text" id="room-password" placeholder="Şifre belirle..." maxlength="10">
       </div>
-      <button class="btn btn-primary btn-block" id="btn-create" onclick="createRoom()">Oda Aç</button>
+      <button class="btn btn-primary btn-block" onclick="createRoom()">Oluştur</button>
       <div class="error-msg" id="create-error"></div>
       <div class="loading" id="create-loading" style="display:none;">Oda oluşturuluyor...</div>
+      <button class="btn btn-sm btn-block" style="margin-top:10px;background:transparent;border:1px solid var(--border);color:var(--label);" onclick="hideCreateForm()">İptal</button>
     </div>
-    <div id="tab-join" class="hidden">
-      <div class="form-group">
-        <label>Kullanıcı Adı</label>
-        <input type="text" id="join-username" placeholder="İsmin..." maxlength="20">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Oda Kodu</label>
-          <input type="text" class="code-input" id="join-code" placeholder="0000" maxlength="4" inputmode="numeric" pattern="[0-9]*">
-        </div>
-        <div class="form-group">
-          <label>Şifre <span style="font-weight:400;color:var(--system);">(varsa)</span></label>
-          <input type="text" id="join-password" placeholder="Şifre..." maxlength="10">
-        </div>
-      </div>
-      <button class="btn btn-primary btn-block" id="btn-join" onclick="joinRoom()">Katıl</button>
-      <div class="error-msg" id="join-error"></div>
-      <div class="loading" id="join-loading" style="display:none;">Odaya katılılıyor...</div>
-      <div class="divider">veya</div>
-      <button class="btn btn-success btn-block" id="btn-public" onclick="joinPublicRoom()">Public Oda</button>
+    <div class="room-list-title">Aktif Odalar</div>
+    <div class="room-list" id="room-list">
+      <div class="room-empty">Hiç oda yok. İlk odayı sen aç!</div>
     </div>
+  </div>
+
+  <div id="join-prompt" class="card hidden" style="text-align:center;">
+    <h2 style="font-size:20px;margin-bottom:8px;" id="join-room-name">Oda</h2>
+    <p style="color:var(--label);font-size:13px;margin-bottom:20px;">Bu oda şifreli, girmek için şifreyi gir</p>
+    <div class="form-group">
+      <input type="text" id="join-room-password" placeholder="Şifre..." maxlength="10" onkeydown="if(event.key==='Enter') doJoinRoom()">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-primary btn-block" onclick="doJoinRoom()">Katıl</button>
+      <button class="btn btn-sm" style="flex-shrink:0;background:transparent;border:1px solid var(--border);color:var(--label);padding:12px 20px;" onclick="cancelJoinRoom()">İptal</button>
+    </div>
+    <div class="error-msg" id="join-error"></div>
   </div>
 
   <div id="chat-view" class="card hidden">
     <div class="chat-header">
       <div>
-        <h2>Chat 000</h2>
+        <h2 id="chat-room-name">Chat 000</h2>
         <span style="font-size:12px;color:var(--label);" id="chat-username-display"></span>
       </div>
       <div class="chat-header-actions">
-        <button class="btn-icon" onclick="toggleTheme()" id="theme-btn2" title="Tema değiştir">🌙</button>
+        <button class="btn-icon" onclick="toggleTheme()" id="theme-btn2" title="Tema">🌙</button>
         <button class="clear-btn hidden" id="btn-clear" onclick="clearChat()">Temizle</button>
-        <span class="chat-code-badge" id="chat-code-display">0000</span>
+        <span class="chat-code-badge" id="chat-code-display">#1</span>
         <button class="leave-btn" onclick="leaveRoom()">Çık</button>
       </div>
     </div>
@@ -222,12 +224,12 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const PUBLIC_CODE = '0000';
 const COLORS = ['#e94560','#2ecc71','#f39c12','#3498db','#9b59b6','#1abc9c','#e67e22','#e91e63','#00bcd4','#ff5722'];
 let state = {
-  code: null, username: null, isOwner: false,
+  code: null, username: null, isOwner: false, roomName: null,
   messageRef: null, presenceRef: null, presenceListener: null, typingRef: null,
-  typingTimeout: null, notifGranted: false, replyTo: null, replyUser: null
+  typingTimeout: null, notifGranted: false, replyTo: null, replyUser: null,
+  roomsRef: null, joiningRoomId: null
 };
 
 function getUserColor(name) {
@@ -242,13 +244,32 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
-function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
-  document.getElementById('tab-create').classList.toggle('hidden', tab !== 'create');
-  document.getElementById('tab-join').classList.toggle('hidden', tab !== 'join');
-  document.getElementById('create-error').textContent = '';
-  document.getElementById('join-error').textContent = '';
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('chat-theme', next);
+  const icon = next === 'dark' ? '🌙' : '☀️';
+  document.getElementById('theme-btn').textContent = icon;
+  document.getElementById('theme-btn2') && (document.getElementById('theme-btn2').textContent = icon);
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('chat-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  const icon = saved === 'dark' ? '🌙' : '☀️';
+  const b1 = document.getElementById('theme-btn');
+  if (b1) b1.textContent = icon;
+})();
+
+function showCreateForm() {
+  document.getElementById('create-form').classList.remove('hidden');
+  document.getElementById('btn-create').classList.add('hidden');
+  document.getElementById('room-name').focus();
+}
+function hideCreateForm() {
+  document.getElementById('create-form').classList.add('hidden');
+  document.getElementById('btn-create').classList.remove('hidden');
 }
 
 function showError(id, msg) {
@@ -256,18 +277,7 @@ function showError(id, msg) {
 }
 
 function playBeep() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = 880;
-    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.15);
-  } catch(e) {}
+  // removed
 }
 
 function sendNotif(title, body) {
@@ -284,132 +294,100 @@ async function requestNotif() {
     state.notifGranted = Notification.permission === 'granted';
   }
 }
-
 requestNotif();
-
-function toggleTheme() {
-  const html = document.documentElement;
-  const current = html.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
-  html.setAttribute('data-theme', next);
-  localStorage.setItem('chat-theme', next);
-  const icon = next === 'dark' ? '🌙' : '☀️';
-  document.getElementById('theme-btn').textContent = icon;
-  document.getElementById('theme-btn2').textContent = icon;
-}
-
-(function initTheme() {
-  const saved = localStorage.getItem('chat-theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
-  const icon = saved === 'dark' ? '🌙' : '☀️';
-  const b1 = document.getElementById('theme-btn');
-  const b2 = document.getElementById('theme-btn2');
-  if (b1) b1.textContent = icon;
-  if (b2) b2.textContent = icon;
-})();
 
 async function createRoom() {
   const username = document.getElementById('create-username').value.trim();
   if (!username) { showError('create-error', 'Lütfen bir kullanıcı adı girin.'); return; }
-  const password = document.getElementById('create-password').value.trim();
-  document.getElementById('btn-create').disabled = true;
+  const roomName = document.getElementById('room-name').value.trim() || username + "'ın Odası";
+  const password = document.getElementById('room-password').value.trim();
   document.getElementById('create-loading').style.display = 'block';
   showError('create-error', '');
   try {
-    const code = await generateUniqueCode();
-    const roomData = { created: Date.now(), createdBy: username };
-    if (password) roomData.password = password;
-    await db.ref('rooms/' + code).set(roomData);
-    state.code = code; state.username = username; state.isOwner = true;
+    const roomId = await getNextRoomId();
+    const roomData = {
+      name: roomName, createdBy: username, createdAt: Date.now(),
+      password: password || ''
+    };
+    await db.ref('rooms/' + roomId).set(roomData);
+    state.code = String(roomId); state.username = username; state.isOwner = true; state.roomName = roomName;
     enterChat();
   } catch(e) {
     showError('create-error', 'Oda oluşturulamadı: ' + e.message);
-    document.getElementById('btn-create').disabled = false;
     document.getElementById('create-loading').style.display = 'none';
   }
 }
 
-async function generateUniqueCode() {
-  for (let a = 0; a < 20; a++) {
-    const c = String(Math.floor(1000 + Math.random() * 9000));
-    const s = await db.ref('rooms/' + c).once('value');
-    if (!s.exists()) return c;
-  }
-  throw new Error('Kod üretilemedi.');
+function getNextRoomId() {
+  return new Promise(function(resolve, reject) {
+    const counterRef = db.ref('meta/roomCounter');
+    counterRef.transaction(function(current) {
+      return (current || 0) + 1;
+    }, function(err, committed, snap) {
+      if (err) return reject(err);
+      if (!committed) return reject(new Error('Senkron hatası'));
+      resolve(snap.val());
+    }, false);
+  });
 }
 
-async function joinRoom() {
-  const username = document.getElementById('join-username').value.trim();
-  if (!username) { showError('join-error', 'Lütfen bir kullanıcı adı girin.'); return; }
-  const code = document.getElementById('join-code').value.trim();
-  if (code.length !== 4 || !/^\d{4}$/.test(code)) {
-    showError('join-error', 'Geçerli 4 haneli bir kod girin.'); return;
+function roomListClick(roomId, hasPassword) {
+  const username = document.getElementById('create-username').value.trim();
+  if (!username) { showError('create-error', 'Önce kullanıcı adı gir.'); return; }
+  document.getElementById('create-form').classList.add('hidden');
+  document.getElementById('btn-create').classList.remove('hidden');
+  if (hasPassword) {
+    state.joiningRoomId = roomId;
+    db.ref('rooms/' + roomId + '/name').once('value').then(function(snap) {
+      document.getElementById('join-room-name').textContent = snap.val() || 'Oda #' + roomId;
+    });
+    document.getElementById('join-prompt').classList.remove('hidden');
+    document.getElementById('auth-view').classList.add('hidden');
+    document.getElementById('join-room-password').value = '';
+    document.getElementById('join-room-password').focus();
+    document.getElementById('join-error').textContent = '';
+  } else {
+    joinRoom(roomId);
   }
-  document.getElementById('btn-join').disabled = true;
-  document.getElementById('join-loading').style.display = 'block';
-  showError('join-error', '');
-  try {
-    const snap = await db.ref('rooms/' + code).once('value');
-    if (!snap.exists()) {
-      showError('join-error', 'Oda bulunamadı.');
-      document.getElementById('btn-join').disabled = false;
-      document.getElementById('join-loading').style.display = 'none';
-      return;
-    }
-    const room = snap.val();
-    const password = document.getElementById('join-password').value.trim();
-    if (room.password && room.password !== password) {
+}
+
+function doJoinRoom() {
+  const pwd = document.getElementById('join-room-password').value.trim();
+  db.ref('rooms/' + state.joiningRoomId + '/password').once('value').then(function(snap) {
+    if (snap.val() !== pwd) {
       showError('join-error', 'Şifre yanlış.');
-      document.getElementById('btn-join').disabled = false;
-      document.getElementById('join-loading').style.display = 'none';
       return;
     }
-    state.code = code; state.username = username;
+    document.getElementById('join-prompt').classList.add('hidden');
+    document.getElementById('auth-view').classList.remove('hidden');
+    joinRoom(state.joiningRoomId);
+  });
+}
+
+function cancelJoinRoom() {
+  state.joiningRoomId = null;
+  document.getElementById('join-prompt').classList.add('hidden');
+  document.getElementById('auth-view').classList.remove('hidden');
+}
+
+function joinRoom(roomId) {
+  const username = document.getElementById('create-username').value.trim();
+  state.code = String(roomId); state.username = username;
+  db.ref('rooms/' + roomId + '/name').once('value').then(function(snap) {
+    state.roomName = snap.val() || 'Oda #' + roomId;
     enterChat();
-  } catch(e) {
-    showError('join-error', 'Bağlantı hatası: ' + e.message);
-    document.getElementById('btn-join').disabled = false;
-    document.getElementById('join-loading').style.display = 'none';
-  }
-}
-
-async function joinPublicRoom() {
-  const username = document.getElementById('join-username').value.trim();
-  if (!username) { showError('join-error', 'Lütfen bir kullanıcı adı girin.'); return; }
-  document.getElementById('btn-public').disabled = true;
-  showError('join-error', '');
-  try {
-    const snap = await db.ref('rooms/' + PUBLIC_CODE).once('value');
-    if (!snap.exists()) {
-      await db.ref('rooms/' + PUBLIC_CODE).set({ created: Date.now(), createdBy: 'system', public: true });
-    }
-    state.code = PUBLIC_CODE; state.username = username;
+  }).catch(function() {
+    state.roomName = 'Oda #' + roomId;
     enterChat();
-  } catch(e) {
-    showError('join-error', 'Bağlantı hatası: ' + e.message);
-    document.getElementById('btn-public').disabled = false;
-  }
-}
-
-function showReplyBar(user, text) {
-  state.replyTo = text;
-  state.replyUser = user;
-  document.getElementById('reply-user').textContent = user;
-  document.getElementById('reply-text').textContent = text.length > 50 ? text.slice(0, 50) + '...' : text;
-  document.getElementById('reply-bar').classList.remove('hidden');
-  document.getElementById('chat-input').focus();
-}
-
-function cancelReply() {
-  state.replyTo = null;
-  state.replyUser = null;
-  document.getElementById('reply-bar').classList.add('hidden');
+  });
 }
 
 function enterChat() {
   document.getElementById('auth-view').classList.add('hidden');
+  document.getElementById('join-prompt').classList.add('hidden');
   document.getElementById('chat-view').classList.remove('hidden');
-  document.getElementById('chat-code-display').textContent = state.code;
+  document.getElementById('chat-room-name').textContent = state.roomName || 'Chat 000';
+  document.getElementById('chat-code-display').textContent = '#' + state.code;
   document.getElementById('chat-username-display').textContent = 'Giriş yapan: ' + state.username;
   document.getElementById('chat-messages').innerHTML = '';
   document.getElementById('chat-input').focus();
@@ -417,19 +395,13 @@ function enterChat() {
 
   document.getElementById('btn-create').disabled = false;
   document.getElementById('create-loading').style.display = 'none';
-  document.getElementById('btn-join').disabled = false;
-  document.getElementById('join-loading').style.display = 'none';
-  document.getElementById('btn-public').disabled = false;
 
-  addSystemMessage('Odaya katıldınız. Kod: ' + state.code);
+  addSystemMessage('Odaya katıldınız: ' + (state.roomName || '#' + state.code));
 
-  if (!state.isOwner && state.code !== PUBLIC_CODE) {
-    db.ref('rooms/' + state.code + '/createdBy').once('value').then(function(snap) {
-      state.isOwner = (snap.val() === state.username);
-      document.getElementById('btn-clear').classList.toggle('hidden', !state.isOwner || state.code === PUBLIC_CODE);
-    });
-  }
-  document.getElementById('btn-clear').classList.toggle('hidden', !state.isOwner || state.code === PUBLIC_CODE);
+  db.ref('rooms/' + state.code + '/createdBy').once('value').then(function(snap) {
+    state.isOwner = (snap.val() === state.username);
+    document.getElementById('btn-clear').classList.toggle('hidden', !state.isOwner);
+  });
 
   state.messageRef = db.ref('rooms/' + state.code + '/messages').limitToLast(50);
   state.messageRef.on('value', function(snapshot) {
@@ -471,29 +443,31 @@ function updateUserList(users) {
     div.innerHTML = '<span class="user-dot"></span><span class="user-name" style="color:' + getUserColor(name) + '">' + escapeHtml(name) + '</span>';
     list.appendChild(div);
   });
-  db.ref('rooms/' + state.code + '/typing').on('value', function(snap) {
-    const typingUsers = [];
-    snap.forEach(function(c) {
-      if (c.val() === true && c.key !== state.username) typingUsers.push(c.key);
-    });
-    document.querySelectorAll('.user-item').forEach(function(el) {
-      const existing = el.querySelector('.user-typing');
-      if (existing) existing.remove();
-    });
-    typingUsers.forEach(function(name) {
+  if (state.typingRef) {
+    db.ref('rooms/' + state.code + '/typing').on('value', function(snap) {
+      const typingUsers = [];
+      snap.forEach(function(c) {
+        if (c.val() === true && c.key !== state.username) typingUsers.push(c.key);
+      });
       document.querySelectorAll('.user-item').forEach(function(el) {
-        const nameEl = el.querySelector('.user-name');
-        if (nameEl && nameEl.textContent === name) {
-          if (!el.querySelector('.user-typing')) {
-            const t = document.createElement('div');
-            t.className = 'user-typing';
-            t.textContent = 'yazıyor...';
-            el.appendChild(t);
+        const existing = el.querySelector('.user-typing');
+        if (existing) existing.remove();
+      });
+      typingUsers.forEach(function(name) {
+        document.querySelectorAll('.user-item').forEach(function(el) {
+          const nameEl = el.querySelector('.user-name');
+          if (nameEl && nameEl.textContent === name) {
+            if (!el.querySelector('.user-typing')) {
+              const t = document.createElement('div');
+              t.className = 'user-typing';
+              t.textContent = 'yazıyor...';
+              el.appendChild(t);
+            }
           }
-        }
+        });
       });
     });
-  });
+  }
 }
 
 function onTyping() {
@@ -526,7 +500,6 @@ function addMessage(key, data) {
   if (data.deleted) return;
 
   if (data.username !== state.username) {
-    playBeep();
     sendNotif(data.username, data.message);
   }
 
@@ -575,7 +548,7 @@ function addMessage(key, data) {
     actions.appendChild(replyBtn);
   }
 
-  if (state.isOwner && state.code !== PUBLIC_CODE && key) {
+  if (state.isOwner && key) {
     const editBtn = document.createElement('button');
     editBtn.className = 'edit-btn';
     editBtn.textContent = 'Düzenle';
@@ -589,12 +562,26 @@ function addMessage(key, data) {
   }
 
   if (actions.children.length > 0) div.appendChild(actions);
-
   container.appendChild(div);
 }
 
 function addSystemMessage(text) {
   addMessage(null, { type: 'system', message: text });
+}
+
+function showReplyBar(user, text) {
+  state.replyTo = text;
+  state.replyUser = user;
+  document.getElementById('reply-user').textContent = user;
+  document.getElementById('reply-text').textContent = text.length > 50 ? text.slice(0, 50) + '...' : text;
+  document.getElementById('reply-bar').classList.remove('hidden');
+  document.getElementById('chat-input').focus();
+}
+
+function cancelReply() {
+  state.replyTo = null;
+  state.replyUser = null;
+  document.getElementById('reply-bar').classList.add('hidden');
 }
 
 function deleteMessage(msgKey) {
@@ -643,7 +630,7 @@ function sendMessage() {
 function leaveRoom() {
   stopTyping();
   cancelReply();
-  if (state.isOwner && state.code !== PUBLIC_CODE) {
+  if (state.isOwner) {
     db.ref('rooms/' + state.code).remove();
   }
   if (state.messageRef) { state.messageRef.off(); state.messageRef = null; }
@@ -651,13 +638,44 @@ function leaveRoom() {
   if (state.presenceRef) { state.presenceRef.remove(); state.presenceRef = null; }
   if (state.typingRef) { state.typingRef.remove(); state.typingRef = null; }
   db.ref('rooms/' + state.code + '/typing').off();
-  state.code = null; state.username = null; state.isOwner = false;
+  state.code = null; state.username = null; state.isOwner = false; state.roomName = null;
   document.getElementById('chat-view').classList.add('hidden');
   document.getElementById('auth-view').classList.remove('hidden');
   document.getElementById('chat-messages').innerHTML = '';
-  document.getElementById('join-code').value = '';
   document.getElementById('btn-clear').classList.add('hidden');
 }
+
+// Room list listener
+state.roomsRef = db.ref('rooms').orderByKey().limitToLast(50);
+state.roomsRef.on('value', function(snapshot) {
+  const list = document.getElementById('room-list');
+  list.innerHTML = '';
+  const rooms = [];
+  snapshot.forEach(function(c) {
+    if (c.key === 'presence' || c.key === 'typing' || c.key === 'messages') return;
+    const val = c.val();
+    if (val && typeof val === 'object' && val.name) {
+      rooms.push({ id: c.key, name: val.name, createdBy: val.createdBy, hasPassword: !!val.password });
+    }
+  });
+  rooms.sort(function(a, b) { return parseInt(a.id) - parseInt(b.id); });
+  if (rooms.length === 0) {
+    list.innerHTML = '<div class="room-empty">Hiç oda yok. İlk odayı sen aç!</div>';
+    return;
+  }
+  rooms.forEach(function(r) {
+    const div = document.createElement('div');
+    div.className = 'room-item';
+    div.onclick = function() { roomListClick(r.id, r.hasPassword); };
+    div.innerHTML =
+      '<div class="ri-left">' +
+        '<div class="ri-name">#' + r.id + '  ' + escapeHtml(r.name) + '</div>' +
+        '<div class="ri-meta">' + escapeHtml(r.createdBy) + '</div>' +
+      '</div>' +
+      '<div class="ri-lock">' + (r.hasPassword ? '🔒' : '🔓') + '</div>';
+    list.appendChild(div);
+  });
+});
 </script>
 </body>
 </html>
