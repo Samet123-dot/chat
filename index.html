@@ -340,6 +340,7 @@ function addMessage(key, data) {
     return;
   }
   if (typeof data !== 'object' || data === null) return;
+  if (data.deleted) return;
   const container = document.getElementById('chat-messages');
   const div = document.createElement('div');
   div.className = 'msg';
@@ -391,7 +392,11 @@ function addSystemMessage(text) {
 
 function deleteMessage(msgKey) {
   if (!confirm('Mesajı silmek istediğine emin misin?')) return;
-  db.ref('rooms/' + state.code + '/messages/' + msgKey).remove();
+  db.ref('rooms/' + state.code + '/messages/' + msgKey).update({
+    message: '[silindi]',
+    deleted: true,
+    time: new Date().toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'})
+  });
 }
 
 function editMessage(msgKey, oldText) {
