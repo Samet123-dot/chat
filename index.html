@@ -144,7 +144,7 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
         <div class="chat-messages" id="chat-messages"></div>
         <div class="emoji-wrap">
           <div class="chat-input">
-            <button class="btn-emoji" id="btn-emoji" onclick="toggleEmoji()">😊</button>
+            <button class="btn-emoji" id="btn-emoji" onclick="openEmoji()">😊</button>
             <input type="text" id="chat-input" placeholder="Mesajınızı yazın..." maxlength="500" onkeydown="if(event.key==='Enter') sendMessage()" oninput="onTyping()" onblur="stopTyping()">
             <button class="btn btn-primary btn-send" onclick="sendMessage()">Gönder</button>
           </div>
@@ -509,22 +509,24 @@ function clearChat() {
   db.ref('rooms/' + state.code + '/messages').remove();
 }
 
-function toggleEmoji() {
+function openEmoji() {
   const picker = document.getElementById('emoji-picker');
-  state.emojiOpen = !state.emojiOpen;
-  if (state.emojiOpen) {
-    picker.classList.remove('hidden');
-    if (picker.children.length === 0) {
-      EMOJIS.forEach(function(e) {
-        const span = document.createElement('span');
-        span.textContent = e;
-        span.onclick = function() { insertEmoji(e); };
-        picker.appendChild(span);
-      });
-    }
-  } else {
-    picker.classList.add('hidden');
+  if (state.emojiOpen) { closeEmoji(); return; }
+  state.emojiOpen = true;
+  picker.classList.remove('hidden');
+  if (picker.children.length === 0) {
+    EMOJIS.forEach(function(e) {
+      const span = document.createElement('span');
+      span.textContent = e;
+      span.onclick = function() { insertEmoji(e); };
+      picker.appendChild(span);
+    });
   }
+}
+
+function closeEmoji() {
+  state.emojiOpen = false;
+  document.getElementById('emoji-picker').classList.add('hidden');
 }
 
 function insertEmoji(emoji) {
@@ -534,13 +536,12 @@ function insertEmoji(emoji) {
   input.value = input.value.substring(0, start) + emoji + input.value.substring(end);
   input.selectionStart = input.selectionEnd = start + emoji.length;
   input.focus();
-  toggleEmoji();
+  closeEmoji();
 }
 
 document.addEventListener('click', function(e) {
-  if (state.emojiOpen && !e.target.closest('.emoji-wrap')) {
-    document.getElementById('emoji-picker').classList.add('hidden');
-    state.emojiOpen = false;
+  if (state.emojiOpen && !e.target.closest('.emoji-wrap') && e.target.id !== 'btn-emoji') {
+    closeEmoji();
   }
 });
 
