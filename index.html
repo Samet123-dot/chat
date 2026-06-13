@@ -282,6 +282,19 @@ function enterChat() {
   state.messageRef.on('child_added', function(snapshot) {
     addMessage(snapshot.key, snapshot.val());
   });
+  state.messageRef.on('child_removed', function(snapshot) {
+    const el = document.querySelector('[data-key="' + snapshot.key + '"]');
+    if (el) el.remove();
+  });
+  state.messageRef.on('child_changed', function(snapshot) {
+    const el = document.querySelector('[data-key="' + snapshot.key + '"]');
+    if (el) {
+      const data = snapshot.val();
+      const textDiv = el.querySelector('.text');
+      if (textDiv) textDiv.textContent = data.message;
+      el.classList.add('edited');
+    }
+  });
 
   state.presenceRef = db.ref('rooms/' + state.code + '/presence').push();
   state.presenceRef.set({ username: state.username, online: true, joinedAt: Date.now() });
@@ -332,6 +345,7 @@ function addMessage(key, data) {
   const container = document.getElementById('chat-messages');
   const div = document.createElement('div');
   div.className = 'msg';
+  if (key) div.setAttribute('data-key', key);
 
   const isSelf = data.username === state.username;
   div.classList.add(isSelf ? 'self' : 'other');
