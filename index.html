@@ -374,6 +374,24 @@ async function requestNotif() {
 }
 requestNotif();
 
+var cachedCountry = localStorage.getItem('chat-country');
+function getCountryCode() {
+  return new Promise(function(resolve) {
+    if (cachedCountry) return resolve(cachedCountry);
+    fetch('https://ip-api.com/json/?fields=countryCode').then(function(r) { return r.json(); }).then(function(d) {
+      if (d && d.countryCode && d.countryCode.length === 2) {
+        cachedCountry = d.countryCode;
+        localStorage.setItem('chat-country', cachedCountry);
+        resolve(cachedCountry);
+      } else { resolve(''); }
+    }).catch(function() { resolve(''); });
+  });
+}
+function flagFromCode(code) {
+  if (!code || code.length !== 2) return '';
+  return String.fromCodePoint(code.charCodeAt(0) - 65 + 0x1F1E6, code.charCodeAt(1) - 65 + 0x1F1E6);
+}
+
 // ============ ÖZEL ODA (kodlu) ============
 
 async function createPrivateRoom() {
@@ -574,6 +592,7 @@ function enterChat(code, username, roomName, badge) {
   state.presenceRef = db.ref('rooms/' + code + '/presence').push();
   state.presenceRef.set({ username: username, online: true, joinedAt: Date.now() });
   state.presenceRef.onDisconnect().remove();
+  getCountryCode().then(function(cc) { state.presenceRef.child('country').set(cc); });
 
   state.typingRef = db.ref('rooms/' + code + '/typing/' + username);
   state.typingRef.onDisconnect().remove();
@@ -612,28 +631,38 @@ function enterChat(code, username, roomName, badge) {
 
   state.presenceListener = db.ref('rooms/' + code + '/presence');
   state.presenceListener.on('value', function(snapshot) {
-    const users = [];
-    snapshot.forEach(function(c) { const u = c.val(); if (u && u.username) users.push(u.username); });
+    var users = [];
+    snapshot.forEach(function(c) {
+      var u = c.val();
+      if (u && u.username) {
+        users.push({ name: u.username, country: u.country || '' });
+      }
+    });
     updateUserList(users);
   });
 }
 
-function updateUserList(users) {
-  const list = document.getElementById('user-list');
-  const count = document.getElementById('user-count');
-  const unique = [...new Set(users)];
+function updateUserList(userList) {
+  var list = document.getElementById('user-list');
+  var count = document.getElementById('user-count');
+  var seen = {};
+  var unique = [];
+  userList.forEach(function(u) {
+    if (!seen[u.name]) { seen[u.name] = true; unique.push(u); }
+  });
   count.textContent = unique.length + ' kişi';
   list.innerHTML = '';
-  unique.forEach(function(name) {
-    const div = document.createElement('div');
+  unique.forEach(function(u) {
+    var div = document.createElement('div');
     div.className = 'user-item';
-    div.innerHTML = '<span class="user-dot"></span><span class="user-name" style="color:' + getUserColor(name) + '">' + escapeHtml(name) + '</span>';
-    if (state.isOwner && name !== state.username) {
-      const kickBtn = document.createElement('button');
+    var flag = flagFromCode(u.country);
+    div.innerHTML = '<span class="user-dot"></span><span class="user-name" style="color:' + getUserColor(u.name) + '">' + (flag ? flag + ' ' : '') + escapeHtml(u.name) + '</span>';
+    if (state.isOwner && u.name !== state.username) {
+      var kickBtn = document.createElement('button');
       kickBtn.className = 'kick-btn';
       kickBtn.textContent = 'At';
       kickBtn.title = 'Kullanıcıyı odadan at';
-      kickBtn.onclick = function(e) { e.stopPropagation(); kickUser(name); };
+      kickBtn.onclick = function(e) { e.stopPropagation(); kickUser(u.name); };
       div.appendChild(kickBtn);
     }
     list.appendChild(div);
