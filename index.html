@@ -152,7 +152,7 @@ input.code-input { text-align: center; font-size: 24px; letter-spacing: 12px; fo
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
       <h1 style="margin:0;">Chat 000</h1>
       <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:11px;color:var(--label);background:var(--badge-bg);padding:3px 8px;border-radius:4px;border:1px solid var(--border);">v1.9</span>
+        <span style="font-size:11px;color:var(--label);background:var(--badge-bg);padding:3px 8px;border-radius:4px;border:1px solid var(--border);">v2.0</span>
         <button class="btn-icon" onclick="toggleTheme()" id="theme-btn" title="Tema">🌙</button>
       </div>
     </div>
@@ -478,14 +478,13 @@ function hideSeqCreate() {
 }
 
 function getNextRoomId() {
-  return new Promise(function(resolve, reject) {
-    db.ref('meta/roomCounter').transaction(function(c) {
-      return (c || 0) + 1;
-    }, function(err, committed, snap) {
-      if (err) return reject(err);
-      if (!committed) return reject(new Error('Senkron hatası'));
-      resolve(snap.val());
-    }, false);
+  return db.ref('rooms').once('value').then(function(snap) {
+    var max = 0;
+    snap.forEach(function(c) {
+      var n = parseInt(c.key);
+      if (!isNaN(n) && n > max) max = n;
+    });
+    return max + 1;
   });
 }
 
