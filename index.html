@@ -168,7 +168,8 @@ function showError(id, msg) {
 }
 
 async function createRoom() {
-  const username = document.getElementById('create-username').value.trim() || 'Anonymous';
+  const username = document.getElementById('create-username').value.trim();
+  if (!username) { showError('create-error', 'Lütfen bir kullanıcı adı girin.'); return; }
   document.getElementById('btn-create').disabled = true;
   document.getElementById('create-loading').style.display = 'block';
   showError('create-error', '');
@@ -195,7 +196,8 @@ async function generateUniqueCode() {
 }
 
 async function joinRoom() {
-  const username = document.getElementById('join-username').value.trim() || 'Anonymous';
+  const username = document.getElementById('join-username').value.trim();
+  if (!username) { showError('join-error', 'Lütfen bir kullanıcı adı girin.'); return; }
   const code = document.getElementById('join-code').value.trim();
   if (code.length !== 4 || !/^\d{4}$/.test(code)) {
     showError('join-error', 'Geçerli 4 haneli bir kod girin.');
@@ -223,7 +225,8 @@ async function joinRoom() {
 }
 
 async function joinPublicRoom() {
-  const username = document.getElementById('join-username').value.trim() || 'Anonymous';
+  const username = document.getElementById('join-username').value.trim();
+  if (!username) { showError('join-error', 'Lütfen bir kullanıcı adı girin.'); return; }
   document.getElementById('btn-public').disabled = true;
   showError('join-error', '');
   try {
