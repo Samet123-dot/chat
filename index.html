@@ -578,9 +578,10 @@ function enterChat(code, username, roomName, badge) {
   state.typingRef = db.ref('rooms/' + code + '/typing/' + username);
   state.typingRef.onDisconnect().remove();
 
-  state.kickedRef = db.ref('rooms/' + code + '/kicked');
+  state.kickedRef = db.ref('rooms/' + code + '/kicked/' + username);
   state.kickedRef.on('value', function(snap) {
-    if (snap.child(username).exists()) {
+    if (snap.val() === true) {
+      if (state.messageRef) { state.messageRef.off(); state.messageRef = null; }
       addSystemMessage('Odadan atıldınız!');
       setTimeout(function() { leaveRoom(); }, 1500);
     }
@@ -753,16 +754,23 @@ function clearChat() {
 
 function kickUser(name) {
   if (!confirm('"' + name + '" odadan atılsın mı?')) return;
-  db.ref('rooms/' + state.code + '/kicked/' + name).set(true);
-  db.ref('rooms/' + state.code + '/presence').once('value').then(function(snap) {
+  var code = state.code;
+  db.ref('rooms/' + code + '/kicked/' + name).set(true);
+  db.ref('rooms/' + code + '/presence').once('value').then(function(snap) {
     snap.forEach(function(c) {
-      const u = c.val();
+      var u = c.val();
       if (u && u.username === name) {
-        db.ref('rooms/' + state.code + '/presence/' + c.key).remove();
+        db.ref('rooms/' + code + '/presence/' + c.key).remove();
+        db.ref('rooms/' + code + '/typing/' + name).remove();
       }
     });
   });
-  addSystemMessage(name + ' odadan atıldı.');
+  var t = new Date();
+  var time = String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0');
+  db.ref('rooms/' + code + '/messages').push({
+    type: 'system', message: name + ' odadan atıldı.', time: time,
+    timestamp: firebase.database.ServerValue.TIMESTAMP
+  });
 }
 
 function sendMessage() {
